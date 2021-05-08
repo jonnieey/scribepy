@@ -1,0 +1,7 @@
+__pypackages__/
+__pycache__/
+*.sw[po]
+pdm.lock
+.pdm.toml
+.venv
+*.egg-info/
