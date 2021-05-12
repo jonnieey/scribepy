@@ -2,14 +2,14 @@ from asciimatics.exceptions import ResizeScreenError
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 
-from gui.mainwindow import MainWindow
+from gui.mainwindow import MainWindowFrame
 from player import Player
 import sys
 
-player = Player("")
+player = Player()
 
 def demo(screen, old_scene):
-    mainwindow = MainWindow(screen)
+    mainwindow = MainWindowFrame(screen)
 
     scenes = []
     scenes.append(Scene([mainwindow], -1, name="Main Window"))

@@ -4,37 +4,100 @@ from pathlib import Path
 from pybass.pybass import *
 
 class Player:
-    def __init__(self, file_path):
-        self.file_path = Path(file_path)
+    isPlaying = 0
+    isPaused = 0
+
+    def __init__(self):
+
         if not BASS_Init(-1, 44100, 0, 0, 0):
+            #log exceptions
             print("BASS INITIALIZATION ERROR", get_error_description(BASS_ErrorGetCode()))
             sys.exit(0)
 
-        self.stream = BASS_StreamCreateFile(False, bytes(self.file_path), 0, 0, 0)
+        self.stream = None
 
     def __del__(self):
-        self.destructor()
+        self.destruct()
 
-    def destructor(self):
-        BASS_StreamFree(self.stream)
-        BASS_Free()
+    @property
+    def handle(self):
+        if self.stream is None:
+            self.create_file_stream("")
+        return self.stream
 
-    def play(self):
-        BASS_ChannelPlay(self.stream, False)
+    @handle.deleter
+    def handle(self):
+        self.destruct()
+
+    def create_file_stream(self, file):
+        self.file_path = Path(file)
+        self.stream = BASS_StreamCreateFile(False, bytes(self.file_path), 0, 0, 0)
+
+    def destruct(self):
+        if self.isPlaying or self.isPaused:
+            self.stop()
+            retval = BASS_StreamFree(self.handle)
+
+        self.stream = None
+
+    def play(self, restart=False):
+        self.isPlaying = 1
+        self.isPaused = 0
+        BASS_ChannelPlay(self.handle, restart)
 
     def pause(self):
-        BASS_ChannelPause(self.stream)
+        self.isPaused = 1
+        self.isPlaying = 1
+        BASS_ChannelPause(self.handle)
 
     def stop(self):
-        BASS_ChannelStop(self.stream)
+        self.isPlaying = 0
+        self.isPaused = 0
+        BASS_ChannelStop(self.handle)
 
-    def get_length(self):
-        _len = BASS_ChannelGetLength(self.stream, BASS_POS_BYTE)
-        slen = BASS_ChannelBytes2Seconds(self.stream, _len)
+    @property
+    def length(self):
+        _len = BASS_ChannelGetLength(self.handle, BASS_POS_BYTE)
+        slen = BASS_ChannelBytes2Seconds(self.handle, _len)
         return slen
 
-    def get_position(self):
-        buf = BASS_ChannelGetPosition(self.stream, BASS_POS_BYTE)
-        sbuf = BASS_ChannelBytes2Seconds(self.stream, buf)
+    @property
+    def position(self):
+        buf = BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE)
+        sbuf = BASS_ChannelBytes2Seconds(self.handle, buf)
         return sbuf
 
+    @property
+    def remaining(self):
+        return self.length - self.position
+
+    @property
+    def position_time(self):
+        seconds = int(self.position % 60)
+        minutes = int(self.position // 60)
+
+        return f"{minutes:02}:{seconds:02}"
+
+    def length_time(self):
+        seconds = int(self.length % 60)
+        minutes = int(self.length // 60)
+
+        return f"{minutes:02}:{seconds:02}"
+
+    @property
+    def remaining_time(self):
+        seconds = int(self.remaining % 60)
+        minutes = int(self.remaining // 60)
+
+        return f"{minutes:02}:{seconds:02}"
+
+    @property
+    def pause_play_toggle(self):
+        status = BASS_ChannelIsActive(self.handle)
+        if status == BASS_ACTIVE_PAUSED:
+            return self.play()
+        else:
+            return self.pause()
+    @property
+    def move_to_position_seconds(self, pos):
+        pos = BASS_ChannelSetPosition(self.handle,  pos)

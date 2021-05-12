@@ -5,3 +5,4 @@ pdm.lock
 .pdm.toml
 .venv
 *.egg-info/
+tags
