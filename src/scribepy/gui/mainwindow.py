@@ -30,9 +30,7 @@ class MainWindowFrame(Frame):
         return Frame.process_event(self, event)
 
     def _show_browser(self):
-        pass
-        #TODO
-        # raise NextScene("Scribepy File Browser")
+        raise NextScene("Scribepy File Browser")
 
     def _quit(self):
         raise StopApplication("Quit Application")

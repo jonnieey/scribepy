@@ -98,6 +98,8 @@ class Player:
             return self.play()
         else:
             return self.pause()
-    @property
+
     def move_to_position_seconds(self, pos):
-        pos = BASS_ChannelSetPosition(self.handle,  pos)
+        bytes = BASS_ChannelSeconds2Bytes(self.handle, pos)
+        pos = BASS_ChannelSetPosition(self.handle,  bytes, BASS_POS_BYTE)
+        return pos
