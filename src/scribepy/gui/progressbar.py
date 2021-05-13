@@ -12,11 +12,12 @@ class ProgressBar(Print):
                 7, 60, [self.get_progress],
                 char=">",
                 scale=100.0,
+                #Create custom labels
                 labels=True,
                 axes=BarChart.X_AXIS),
             x=(screen.width - 60) // 2,
             y=(screen.height - 7) // 2,
-            transparent=True, speed=2),
+            transparent=False, speed=2),
 
 
     def _update(self, frame_no):

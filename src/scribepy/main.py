@@ -5,11 +5,14 @@ from asciimatics.screen import Screen
 from gui.browser import BrowserFrame
 from gui.mainwindow import MainWindowFrame
 from gui.progressbar import ProgressBar
+from connector import Connector
 
 from player import Player
 import sys
 
 player = Player()
+connector = Connector()
+connector.setPlayer(player)
 
 def demo(screen, old_scene):
     mainwindow = MainWindowFrame(screen)
@@ -17,6 +20,7 @@ def demo(screen, old_scene):
     browser.setPlayer(player)
     progressbar = ProgressBar(screen)
     progressbar.setPlayer(player)
+    connector.run()
 
     scenes = []
     scenes.append(Scene([mainwindow], -1, name="Main Window"))

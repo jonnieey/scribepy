@@ -68,6 +68,12 @@ class Player:
         return sbuf
 
     @property
+    def position_bytes(self):
+        buf = BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE)
+        return buf
+
+
+    @property
     def remaining(self):
         return self.length - self.position
 
@@ -99,7 +105,18 @@ class Player:
         else:
             return self.pause()
 
+    def move_to_position_bytes(self, pos):
+        pos = BASS_ChannelSetPosition(self.handle,  pos, BASS_POS_BYTE)
+        return pos
+
     def move_to_position_seconds(self, pos):
         bytes = BASS_ChannelSeconds2Bytes(self.handle, pos)
         pos = BASS_ChannelSetPosition(self.handle,  bytes, BASS_POS_BYTE)
         return pos
+
+    def seek_by_bytes(self, s):
+        return self.move_to_position_bytes(self.position_bytes + (s * 124000 ) )
+
+    def seek(self, s):
+        return self.move_to_position_seconds(self.position + s )
+
