@@ -31,10 +31,10 @@ class ProgressBar(Print):
         if isinstance(event, KeyboardEvent):
             if event.key_code in [ord("q"), ord("Q")]:
                 self.player.stop()
-                raise NextScene("Main Window")
+                raise NextScene("Scribepy File Browser")
             if event.key_code in [ord("s")]:
                 self.player.stop()
-                raise NextScene("Main Window")
+                raise NextScene("Scribepy File Browser")
             elif event.key_code in [ord(" ")]:
                 self.player.pause_play_toggle
             elif event.key_code in [ord("l"), Screen.KEY_RIGHT]:

@@ -3,6 +3,12 @@ import time
 from pathlib import Path
 from pybass.pybass import *
 
+fx_module = ctypes.CDLL('./libbass_fx.so')
+fx_func_type = ctypes.CFUNCTYPE
+BASS_ATTRIB_TEMPO = 0x10000
+BASS_FX_FREESOURCE = 0x10000
+BASS_FX_TempoCreate = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_ulong)(('BASS_FX_TempoCreate', fx_module))
+
 class Player:
     isPlaying = 0
     isPaused = 0
@@ -15,6 +21,7 @@ class Player:
             sys.exit(0)
 
         self.stream = None
+        self.tempo = 0
 
     def __del__(self):
         self.destruct()
@@ -29,9 +36,10 @@ class Player:
     def handle(self):
         self.destruct()
 
-    def create_file_stream(self, file):
-        self.file_path = Path(file)
-        self.stream = BASS_StreamCreateFile(False, bytes(self.file_path), 0, 0, 0)
+    def create_file_stream(self, f):
+        file = Path(f)
+        stream = BASS_StreamCreateFile(False, bytes(file), 0, 0, BASS_STREAM_DECODE)
+        self.stream = BASS_FX_TempoCreate(stream, BASS_FX_FREESOURCE)
 
     def destruct(self):
         if self.isPlaying or self.isPaused:
@@ -43,7 +51,7 @@ class Player:
     def play(self, restart=False):
         self.isPlaying = 1
         self.isPaused = 0
-        BASS_ChannelPlay(self.handle, restart)
+        BASS_ChannelPlay(self.stream, restart)
 
     def pause(self):
         self.isPaused = 1
@@ -71,7 +79,6 @@ class Player:
     def position_bytes(self):
         buf = BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE)
         return buf
-
 
     @property
     def remaining(self):
@@ -120,3 +127,10 @@ class Player:
     def seek(self, s):
         return self.move_to_position_seconds(self.position + s )
 
+    def change_tempo(self, speed):
+        self.tempo += speed
+        BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+
+    def restore_tempo(self):
+        self.tempo = 0
+        BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)

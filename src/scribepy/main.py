@@ -25,7 +25,7 @@ def demo(screen, old_scene):
     scenes = []
     scenes.append(Scene([mainwindow], -1, name="Main Window"))
     scenes.append(Scene([browser], -1, name="Scribepy File Browser"))
-    scenes.append(Scene([progressbar], -1, name="Progress Bar"))
+    scenes.append(Scene([progressbar], -1, clear=False, name="Progress Bar"))
     screen.play(scenes, start_scene = old_scene)
 
 last_scene = None

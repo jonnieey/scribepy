@@ -7,7 +7,8 @@ class Connector:
 
     def on_press(self, key):
 
-        #F2 increase speed
+        if key == keyboard.Key.f2:
+            self.player.change_tempo(4)
 
         if key == keyboard.Key.f3:
             self.player.seek(-10)
@@ -15,7 +16,8 @@ class Connector:
         if key == keyboard.Key.f4:
             self.player.pause()
 
-        #F5 Restore to playback speed (1.0)
+        if key == keyboard.Key.f5:
+            self.player.restore_tempo()
 
         if key == keyboard.Key.f6:
             self.player.seek(10)
@@ -29,10 +31,12 @@ class Connector:
         if key == keyboard.Key.f9:
             if not self.player.isPaused:
                 self.player.pause()
-                self.player.seek(-2)
+                self.player.seek(-4)
             else:
                 pass
-        #F11 decrease speed
+
+        if key == keyboard.Key.f11:
+            self.player.change_tempo(-4)
 
     def run(self):
         listener = keyboard.Listener(on_press=self.on_press,)
