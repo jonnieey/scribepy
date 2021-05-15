@@ -30,9 +30,12 @@ class BrowserFrame(Frame):
 
     def _play(self):
         file = self.browser.value
-        self.player.create_file_stream(file)
-        self.player.play()
-        raise NextScene("Progress Bar")
+        if self.player.create_file_stream(file) != False:
+            self.player.play()
+            raise NextScene("Progress Bar")
+        else:
+            # Show popup with error
+            pass
 
     def process_event(self, event):
         if isinstance(event, KeyboardEvent):

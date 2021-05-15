@@ -1,13 +1,14 @@
 import sys
 import time
 from pathlib import Path
+
+from magic import from_file
+
 from pybass.pybass import *
-from pybass.pybass_aac import *
-from pybass.pybassflac import *
-from pybass.pybass_alac import *
-from pybass.pybass_tta import *
-from pybass.pybass_mpc import *
-from pybass.pybass_ape import *
+from pybass.pybass_aac import BASS_AAC_StreamCreateFile, BASS_MP4_StreamCreateFile
+from pybass.pybassflac import BASS_FLAC_StreamCreateFile
+from pybass.pybass_tta import BASS_TTA_StreamCreateFile
+from pybass.pybass_alac import BASS_ALAC_StreamCreateFile
 
 fx_module = ctypes.CDLL('./libbass_fx.so')
 fx_func_type = ctypes.CFUNCTYPE
@@ -25,17 +26,15 @@ def get_module_to_use(ext):
     Returns:
         BASS module to use to create stream
     """
-    #Crude (Replace with magic)
     return {
-        ".mp3": BASS_StreamCreateFile,
-        ".m4a": BASS_MP4_StreamCreateFile,
-        ".mp4": BASS_MP4_StreamCreateFile,
-        ".aac": BASS_AAC_StreamCreateFile,
-        ".flac": BASS_FLAC_StreamCreateFile,
-        ".alac": BASS_ALAC_StreamCreateFile,
-        ".tta": BASS_TTA_StreamCreateFile,
-        ".mpc": BASS_MPC_StreamCreateFile,
-        ".ape": BASS_APE_StreamCreateFile,
+        "audio/x-hx-aac-adts": BASS_AAC_StreamCreateFile,
+        "audio/flac": BASS_FLAC_StreamCreateFile,
+        "audio/x-m4a": BASS_ALAC_StreamCreateFile,
+        "audio/x-wav": BASS_StreamCreateFile,
+        "audio/ogg": BASS_StreamCreateFile,
+        "audio/mpegapplication/octet-stream": BASS_StreamCreateFile,
+        "video/mp4": BASS_MP4_StreamCreateFile,
+        "application/octet-stream": BASS_TTA_StreamCreateFile,
     }[ext]
 
 class Player:
@@ -89,12 +88,19 @@ class Player:
         f = Path(file)
         # stream = BASS_StreamCreateFile(False, bytes(file), 0, 0, BASS_STREAM_DECODE)
 
-        file_extension = f.suffix.lower()
-        module = get_module_to_use(file_extension)
-        stream = module(False, bytes(f), 0, 0, BASS_STREAM_DECODE)
+        file_extension = from_file(str(f), mime=True)
+        try:
+            module = get_module_to_use(file_extension)
+            stream = module(False, bytes(f), 0, 0, BASS_STREAM_DECODE)
+            # stream = BASS_AAC_StreamCreateFile(False, bytes(file), 0, 0, 0)
+            self.stream = BASS_FX_TempoCreate(stream, BASS_FX_FREESOURCE)
+        except KeyError as error:
+            # Log error.
+            # Show popup screen to show error.
 
-        # stream = BASS_AAC_StreamCreateFile(False, bytes(file), 0, 0, 0)
-        self.stream = BASS_FX_TempoCreate(stream, BASS_FX_FREESOURCE)
+            self.destruct()
+            return False
+
 
     def destruct(self):
         """
