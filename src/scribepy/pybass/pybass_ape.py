@@ -11,7 +11,8 @@ BASS_APE - extension to the BASS audio library
 that enables the playback of Monkey's Audio streams.
 '''
 
-import sys, ctypes, platform, pybass
+import sys, ctypes, platform
+from pybass import pybass
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -21,7 +22,7 @@ if platform.system().lower() == 'windows':
 	bass_ape_module = ctypes.WinDLL('bass_ape')
 	func_type = ctypes.WINFUNCTYPE
 else:
-	bass_ape_module = ctypes.CDLL('bass_ape')
+	bass_ape_module = ctypes.CDLL('./libbass_ape.so')
 	func_type = ctypes.CFUNCTYPE
 
 

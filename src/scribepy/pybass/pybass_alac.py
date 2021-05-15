@@ -10,7 +10,8 @@ BASS_ALAC - extension to the BASS audio library that enables
 the playback of ALAC (Apple Lossless) encoded files.
 '''
 
-import sys, ctypes, platform, pybass
+import sys, ctypes, platform
+from pybass import pybass
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -23,12 +24,12 @@ if platform.system().lower() == 'windows':
 	bass_alac_module = ctypes.WinDLL('bass_alac')
 	func_type = ctypes.WINFUNCTYPE
 else:
-	bass_alac_module = ctypes.CDLL('bass_alac')
+	bass_alac_module = ctypes.CDLL('./libbassalac.so')
 	func_type = ctypes.CFUNCTYPE
 
 
 # Additional BASS_SetConfig options
-BASS_TAG_MP4 = 7 
+BASS_TAG_MP4 = 7
 
 BASS_CTYPE_STREAM_ALAC = 0x10e00
 
@@ -43,9 +44,9 @@ BASS_ALAC_StreamCreateFileUser = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_ulo
 
 if __name__ == "__main__":
 	if not pybass.BASS_Init(-1, 44100, 0, 0, 0):
-		print 'BASS_Init error', pybass.get_error_description(pybass.BASS_ErrorGetCode())
+		print('BASS_Init error', pybass.get_error_description(pybass.BASS_ErrorGetCode()))
 	else:
 		handle = BASS_ALAC_StreamCreateFile(False, 'test.alac', 0, 0, 0)
 		pybass.play_handle(handle)
 		if not pybass.BASS_Free():
-			print 'BASS_Free error', pybass.get_error_description(pybass.BASS_ErrorGetCode())
+			print ('BASS_Free error', pybass.get_error_description(pybass.BASS_ErrorGetCode()))

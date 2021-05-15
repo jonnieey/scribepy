@@ -1,4 +1,5 @@
 import sys, os
+from pathlib import Path
 
 from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
@@ -16,7 +17,7 @@ class BrowserFrame(Frame):
         self.add_layout(layout)
 
         self.browser = FileBrowser(Widget.FILL_FRAME,
-                                 os.path.abspath(os.path.expandvars("$HOME/Downloads/Telegram Desktop/")),
+                                 Path.home(),
                                  name="Scribepy File Browser",
                                  on_select=self._play,)
 

@@ -11,7 +11,8 @@ BASSFLAC - extension to the BASS audio library,
 enabling the playing of FLAC (Free Lossless Audio Codec) encoded files.
 '''
 
-import sys, ctypes, platform, pybass
+import sys, ctypes, platform
+from pybass import pybass
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM

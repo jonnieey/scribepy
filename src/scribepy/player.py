@@ -2,12 +2,32 @@ import sys
 import time
 from pathlib import Path
 from pybass.pybass import *
+from pybass.pybass_aac import *
+from pybass.pybassflac import *
+from pybass.pybass_alac import *
+from pybass.pybass_tta import *
+from pybass.pybass_mpc import *
+from pybass.pybass_ape import *
 
 fx_module = ctypes.CDLL('./libbass_fx.so')
 fx_func_type = ctypes.CFUNCTYPE
 BASS_ATTRIB_TEMPO = 0x10000
 BASS_FX_FREESOURCE = 0x10000
 BASS_FX_TempoCreate = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_ulong)(('BASS_FX_TempoCreate', fx_module))
+
+def get_module_to_use(ext):
+    #Crude (Replace with magic)
+    return {
+        ".mp3": BASS_StreamCreateFile,
+        ".m4a": BASS_MP4_StreamCreateFile,
+        ".mp4": BASS_MP4_StreamCreateFile,
+        ".aac": BASS_AAC_StreamCreateFile,
+        ".flac": BASS_FLAC_StreamCreateFile,
+        ".alac": BASS_ALAC_StreamCreateFile,
+        ".tta": BASS_TTA_StreamCreateFile,
+        ".mpc": BASS_MPC_StreamCreateFile,
+        ".ape": BASS_APE_StreamCreateFile,
+    }[ext]
 
 class Player:
     isPlaying = 0
@@ -38,7 +58,13 @@ class Player:
 
     def create_file_stream(self, f):
         file = Path(f)
-        stream = BASS_StreamCreateFile(False, bytes(file), 0, 0, BASS_STREAM_DECODE)
+        # stream = BASS_StreamCreateFile(False, bytes(file), 0, 0, BASS_STREAM_DECODE)
+
+        file_extension = file.suffix.lower()
+        module = get_module_to_use(file_extension)
+        stream = module(False, bytes(file), 0, 0, BASS_STREAM_DECODE)
+
+        # stream = BASS_AAC_StreamCreateFile(False, bytes(file), 0, 0, 0)
         self.stream = BASS_FX_TempoCreate(stream, BASS_FX_FREESOURCE)
 
     def destruct(self):

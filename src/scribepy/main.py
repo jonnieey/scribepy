@@ -2,9 +2,9 @@ from asciimatics.exceptions import ResizeScreenError
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 
-from gui.browser import BrowserFrame
-from gui.mainwindow import MainWindowFrame
-from gui.progressbar import ProgressBar
+from tui.browser import BrowserFrame
+from tui.mainwindow import MainWindowFrame
+from tui.progressbar import ProgressBar
 from connector import Connector
 
 from player import Player

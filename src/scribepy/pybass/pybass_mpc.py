@@ -11,7 +11,8 @@ BASS_MPC - extension to the BASS audio library
 that enables the playback of Musepack streams.
 '''
 
-import sys, ctypes, platform, pybass
+import sys, ctypes, platform
+from pybass import pybass
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -22,7 +23,7 @@ if platform.system().lower() == 'windows':
 	bass_mpc_module = ctypes.WinDLL('bass_mpc')
 	func_type = ctypes.WINFUNCTYPE
 else:
-	bass_mpc_module = ctypes.CDLL('bass_mpc')
+	bass_mpc_module = ctypes.CDLL('./libbass_mpc.so')
 	func_type = ctypes.CFUNCTYPE
 
 
