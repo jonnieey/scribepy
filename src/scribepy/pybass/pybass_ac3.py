@@ -11,7 +11,8 @@ BASS_AC3 - extension to the BASS audio library that enables the playback
 of Dolby Digital AC-3 streams (http://www.maresweb.de).
 '''
 
-import sys, ctypes, platform, pybass
+import sys, ctypes, platform
+from pybass import pybass
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -22,7 +23,7 @@ if platform.system().lower() == 'windows':
 	bass_ac3_module = ctypes.WinDLL('bass_ac3')
 	func_type = ctypes.WINFUNCTYPE
 else:
-	bass_ac3_module = ctypes.CDLL('bass_ac3')
+	bass_ac3_module = ctypes.CDLL('./libbass_ac3.so')
 	func_type = ctypes.CFUNCTYPE
 
 

@@ -9,6 +9,7 @@ from pybass.pybass_aac import BASS_AAC_StreamCreateFile, BASS_MP4_StreamCreateFi
 from pybass.pybassflac import BASS_FLAC_StreamCreateFile
 from pybass.pybass_tta import BASS_TTA_StreamCreateFile
 from pybass.pybass_alac import BASS_ALAC_StreamCreateFile
+from pybass.pybass_ac3 import BASS_AC3_StreamCreateFile
 
 fx_module = ctypes.CDLL('./libbass_fx.so')
 fx_func_type = ctypes.CFUNCTYPE
@@ -35,6 +36,7 @@ def get_module_to_use(ext):
         "audio/mpegapplication/octet-stream": BASS_StreamCreateFile,
         "video/mp4": BASS_MP4_StreamCreateFile,
         "application/octet-stream": BASS_TTA_StreamCreateFile,
+        "audio/vnd.dolby.dd-raw": BASS_AC3_StreamCreateFile,
     }[ext]
 
 class Player:
