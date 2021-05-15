@@ -2,10 +2,20 @@ from pynput import keyboard
 
 
 class Connector:
+    """
+    A class to interact with the pynput module.
+    """
+
     def __init__(self):
         self.player = None
 
     def on_press(self, key):
+        """
+        Map keybindings to player functions.
+
+        Returns:
+            None.
+        """
 
         if key == keyboard.Key.f2:
             self.player.change_tempo(4)
@@ -39,9 +49,24 @@ class Connector:
             self.player.change_tempo(-4)
 
     def run(self):
+        """
+        Start pynput keyboard listener.
+
+        Returns:
+            None.
+        """
         listener = keyboard.Listener(on_press=self.on_press,)
         listener.start()
 
     def setPlayer(self, player):
+        """
+        Set connector attribute player.
+
+        Arguments:
+            player: Player instance.
+
+        Returns:
+            None.
+        """
         self.player = player
 

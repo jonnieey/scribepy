@@ -14,7 +14,7 @@ player = Player()
 connector = Connector()
 connector.setPlayer(player)
 
-def demo(screen, old_scene):
+def init(screen, old_scene):
     mainwindow = MainWindowFrame(screen)
     browser = BrowserFrame(screen)
     browser.setPlayer(player)
@@ -31,7 +31,7 @@ def demo(screen, old_scene):
 last_scene = None
 while True:
     try:
-        Screen.wrapper(demo, catch_interrupt=False, arguments=[last_scene])
+        Screen.wrapper(init, catch_interrupt=False, arguments=[last_scene])
         sys.exit(0)
     except ResizeScreenError as e:
         last_scene = e.scene
