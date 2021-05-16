@@ -24,7 +24,7 @@ if platform.system().lower() == 'windows':
 	bass_alac_module = ctypes.WinDLL('bass_alac')
 	func_type = ctypes.WINFUNCTYPE
 else:
-	bass_alac_module = ctypes.CDLL('./libbassalac.so')
+	bass_alac_module = ctypes.CDLL('./BASS_modules/libbassalac.so')
 	func_type = ctypes.CFUNCTYPE
 
 

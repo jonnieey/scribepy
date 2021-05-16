@@ -22,7 +22,7 @@ if platform.system().lower() == 'windows':
 	bass_tta_module = ctypes.WinDLL('bass_tta')
 	func_type = ctypes.WINFUNCTYPE
 else:
-	bass_tta_module = ctypes.CDLL('./libbass_tta.so')
+	bass_tta_module = ctypes.CDLL('./BASS_modules/libbass_tta.so')
 	func_type = ctypes.CFUNCTYPE
 
 

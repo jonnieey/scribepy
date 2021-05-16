@@ -22,7 +22,7 @@ if platform.system().lower() == 'windows':
 	bass_ape_module = ctypes.WinDLL('bass_ape')
 	func_type = ctypes.WINFUNCTYPE
 else:
-	bass_ape_module = ctypes.CDLL('./libbass_ape.so')
+	bass_ape_module = ctypes.CDLL('./BASS_modules/libbass_ape.so')
 	func_type = ctypes.CFUNCTYPE
 
 

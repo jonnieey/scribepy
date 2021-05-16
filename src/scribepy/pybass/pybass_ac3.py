@@ -23,7 +23,7 @@ if platform.system().lower() == 'windows':
 	bass_ac3_module = ctypes.WinDLL('bass_ac3')
 	func_type = ctypes.WINFUNCTYPE
 else:
-	bass_ac3_module = ctypes.CDLL('./libbass_ac3.so')
+	bass_ac3_module = ctypes.CDLL('./BASS_modules/libbass_ac3.so')
 	func_type = ctypes.CFUNCTYPE
 
 
