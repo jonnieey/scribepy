@@ -13,6 +13,9 @@ enabling the playing of FLAC (Free Lossless Audio Codec) encoded files.
 
 import sys, ctypes, platform
 from pybass import pybass
+from pathlib import Path
+
+pybass_module = Path(__file__).parent
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -24,7 +27,7 @@ if platform.system().lower() == 'windows':
     func_type = ctypes.WINFUNCTYPE
 else:
     # correct by Wasylews (sabov.97@mail.ru), thank him
-    bassflac_module = ctypes.CDLL('./BASS_modules/libbassflac.so', mode=ctypes.RTLD_GLOBAL)
+    bassflac_module = ctypes.CDLL(f"{pybass_module}/../BASS_modules/libbassflac.so", mode=ctypes.RTLD_GLOBAL)
     func_type = ctypes.CFUNCTYPE
 
 # BASS_CHANNELINFO type

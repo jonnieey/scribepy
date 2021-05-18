@@ -13,6 +13,9 @@ that enables the playback of The True Audio streams.
 
 import sys, ctypes, platform
 from pybass import pybass
+from pathlib import Path
+
+pybass_module = Path(__file__).parent
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -22,7 +25,7 @@ if platform.system().lower() == 'windows':
     bass_tta_module = ctypes.WinDLL('bass_tta')
     func_type = ctypes.WINFUNCTYPE
 else:
-    bass_tta_module = ctypes.CDLL('./BASS_modules/libbass_tta.so')
+    bass_tta_module = ctypes.CDLL(f"{pybass_module}/../BASS_modules/libbass_tta.so")
     func_type = ctypes.CFUNCTYPE
 
 # BASS_CHANNELINFO type

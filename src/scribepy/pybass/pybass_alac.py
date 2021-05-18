@@ -12,6 +12,9 @@ the playback of ALAC (Apple Lossless) encoded files.
 
 import sys, ctypes, platform
 from pybass import pybass
+from pathlib import Path
+
+pybass_module = Path(__file__).parent
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -22,7 +25,7 @@ if platform.system().lower() == 'windows':
     bass_alac_module = ctypes.WinDLL('bass_alac')
     func_type = ctypes.WINFUNCTYPE
 else:
-    bass_alac_module = ctypes.CDLL('./BASS_modules/libbassalac.so')
+    bass_alac_module = ctypes.CDLL(f"{pybass_module}/../BASS_modules/libbassalac.so")
     func_type = ctypes.CFUNCTYPE
 
 # Additional BASS_SetConfig options

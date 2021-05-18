@@ -13,6 +13,9 @@ of Dolby Digital AC-3 streams (http://www.maresweb.de).
 
 import sys, ctypes, platform
 from pybass import pybass
+from pathlib import Path
+
+pybass_module = Path(__file__).parent
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -23,7 +26,7 @@ if platform.system().lower() == 'windows':
     bass_ac3_module = ctypes.WinDLL('bass_ac3')
     func_type = ctypes.WINFUNCTYPE
 else:
-    bass_ac3_module = ctypes.CDLL('./BASS_modules/libbass_ac3.so')
+    bass_ac3_module = ctypes.CDLL(f"{pybass_module}/../BASS_modules/libbass_ac3.so")
     func_type = ctypes.CFUNCTYPE
 
 # BASS_Set/GetConfig options

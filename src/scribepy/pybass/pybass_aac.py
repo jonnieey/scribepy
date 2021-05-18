@@ -13,6 +13,9 @@ of Advanced Audio Coding and MPEG-4 streams (http://www.maresweb.de).
 
 import sys, ctypes, platform, pybass
 from pybass import pybass
+from pathlib import Path
+
+pybass_module = Path(__file__).parent
 
 QWORD = pybass.QWORD
 HSTREAM = pybass.HSTREAM
@@ -23,7 +26,7 @@ if platform.system().lower() == 'windows':
     bass_aac_module = ctypes.WinDLL('bass_aac')
     func_type = ctypes.WINFUNCTYPE
 else:
-    bass_aac_module = ctypes.CDLL('./BASS_modules/libbass_aac.so')
+    bass_aac_module = ctypes.CDLL(f"{pybass_module}/../BASS_modules/libbass_aac.so")
     func_type = ctypes.CFUNCTYPE
 
 # Additional BASS_SetConfig options

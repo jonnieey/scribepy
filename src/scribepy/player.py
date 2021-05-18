@@ -11,7 +11,8 @@ from pybass.pybass_tta import BASS_TTA_StreamCreateFile
 from pybass.pybass_alac import BASS_ALAC_StreamCreateFile
 from pybass.pybass_ac3 import BASS_AC3_StreamCreateFile
 
-fx_module = ctypes.CDLL('./BASS_modules/libbass_fx.so')
+player_module = Path(__file__).parent
+fx_module = ctypes.CDLL(f"{player_module}/BASS_modules/libbass_fx.so")
 fx_func_type = ctypes.CFUNCTYPE
 BASS_ATTRIB_TEMPO = 0x10000
 BASS_FX_FREESOURCE = 0x10000
@@ -96,13 +97,11 @@ class Player:
             stream = module(False, bytes(f), 0, 0, BASS_STREAM_DECODE or BASS_UNICODE)
             # stream = BASS_AAC_StreamCreateFile(False, bytes(file), 0, 0, 0)
             self.stream = BASS_FX_TempoCreate(stream, BASS_FX_FREESOURCE)
-            return False
         except KeyError as error:
             # Log error.
             # Show popup screen to show error.
             self.destruct()
             return {"error": f"*{f.suffix} files are not supported"}
-
 
     def destruct(self):
         """
