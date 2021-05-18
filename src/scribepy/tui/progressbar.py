@@ -4,7 +4,6 @@ from asciimatics.renderers import BarChart
 from asciimatics.effects import Print
 from asciimatics.exceptions import NextScene
 
-
 class ProgressBar(Print):
     def __init__(self, screen):
         Print.__init__(self, screen,
@@ -19,10 +18,9 @@ class ProgressBar(Print):
             y=(screen.height - 7) // 2,
             transparent=False, speed=2),
 
-
     def _update(self, frame_no):
-        if (self.player.position / self.player.length) == 1:
-            raise NextScene("Main Window")
+        if (self.connector.player.position / self.connector.player.length) == 1:
+            raise NextScene("Scribepy File Browser")
         else:
             Print._update(self, frame_no)
 
@@ -30,20 +28,20 @@ class ProgressBar(Print):
 
         if isinstance(event, KeyboardEvent):
             if event.key_code in [ord("q"), ord("Q")]:
-                self.player.stop()
+                self.connector.player.stop()
                 raise NextScene("Scribepy File Browser")
-            if event.key_code in [ord("s")]:
-                self.player.stop()
+            elif event.key_code in [ord("s")]:
+                self.connector.player.stop()
                 raise NextScene("Scribepy File Browser")
             elif event.key_code in [ord(" ")]:
-                self.player.pause_play_toggle
+                self.connector.player.pause_play_toggle
             elif event.key_code in [ord("l"), Screen.KEY_RIGHT]:
-                self.player.move_to_position_seconds(self.player.position + 3)
+                self.connector.player.move_to_position_seconds(self.connector.player.position + 3)
             elif event.key_code in [ord("l"), Screen.KEY_LEFT]:
-                self.player.move_to_position_seconds(self.player.position - 3)
-
-    def setPlayer(self, p):
-        self.player = p
+                self.connector.player.move_to_position_seconds(self.connector.player.position - 3)
 
     def get_progress(self):
-        return (self.player.position / self.player.length) * 100
+        return (self.connector.player.position / self.connector.player.length) * 100
+
+    def set_connector(self, c):
+        self.connector = c

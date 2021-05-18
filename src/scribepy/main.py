@@ -12,16 +12,18 @@ import sys
 
 player = Player()
 connector = Connector()
-connector.setPlayer(player)
+connector.set_player(player)
 
 def init(screen, old_scene):
     mainwindow = MainWindowFrame(screen)
+
     browser = BrowserFrame(screen)
-    browser.setPlayer(player)
-    browser.setConnector(connector)
+    browser.set_connector(connector)
+
     progressbar = ProgressBar(screen)
-    progressbar.setPlayer(player)
-    connector.setBrowser(browser)
+    progressbar.set_connector(connector)
+
+    connector.set_browser(browser)
     connector.run()
 
     scenes = []

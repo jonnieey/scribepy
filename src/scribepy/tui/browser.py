@@ -29,12 +29,13 @@ class BrowserFrame(Frame):
         self.fix()
 
     def _play(self):
-        stream = self.connector.playerPlay()
+        stream = self.connector.player_play()
         if stream is None:
             raise NextScene("Progress Bar")
         else:
             self._scene.add_effect(
-                PopUpDialog(self._screen, f"{stream}", ["OK"], has_shadow=True, on_close=self._quit_on_ok)
+                PopUpDialog(self._screen, f"{stream}", ["OK"],
+                        has_shadow=True, on_close=self._quit_on_ok)
             )
     @staticmethod
     def _quit_on_ok(selected):
@@ -52,9 +53,6 @@ class BrowserFrame(Frame):
     def _quit():
         raise StopApplication("User Quit")
 
-    def setPlayer(self, p):
-        self.player = p
-
-    def setConnector(self, c):
+    def set_connector(self, c):
         self.connector = c
 

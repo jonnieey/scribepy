@@ -57,7 +57,7 @@ class Connector:
         listener = keyboard.Listener(on_press=self.on_press,)
         listener.start()
 
-    def setPlayer(self, player):
+    def set_player(self, player):
         """
         Set connector attribute player.
 
@@ -69,7 +69,7 @@ class Connector:
         """
         self.player = player
 
-    def setBrowser(self, browser):
+    def set_browser(self, browser):
         """
         Set connector attribute browser.
 
@@ -81,7 +81,7 @@ class Connector:
         """
         self.browser = browser
 
-    def playerPlay(self):
+    def player_play(self):
         """
         Play connector channel stream.
 

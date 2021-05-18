@@ -5,7 +5,6 @@ from asciimatics.scene import Scene
 from asciimatics.exceptions import ResizeScreenError, StopApplication, NextScene
 import sys
 
-
 class MainWindowFrame(Frame):
     def __init__(self, screen):
         Frame.__init__(self, screen, screen.height * 2 // 3, screen.width * 2 // 3, has_border=True, name="Main Window")
