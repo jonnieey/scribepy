@@ -324,3 +324,25 @@ class Player:
         """
         self.tempo = 0
         BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+
+    @property
+    def volume(self):
+        """
+        Master Output Volume.
+
+        Returns:
+            Master current volume level.
+        """
+        return BASS_GetVolume()
+
+    def set_volume(self, volume):
+        """
+        Set Output Master Volume.
+
+        Arguments:
+            volume: The volume level to set to.
+
+        Returns:
+            None.
+        """
+        BASS_SetVolume(volume)

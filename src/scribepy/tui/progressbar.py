@@ -27,18 +27,19 @@ class ProgressBar(Print):
     def process_event(self, event):
 
         if isinstance(event, KeyboardEvent):
-            if event.key_code in [ord("q"), ord("Q")]:
+            if event.key_code in [ord("q"), ord("Q"), ord("s")]:
                 self.connector.player.stop()
                 raise NextScene("Scribepy File Browser")
-            elif event.key_code in [ord("s")]:
-                self.connector.player.stop()
-                raise NextScene("Scribepy File Browser")
-            elif event.key_code in [ord(" ")]:
+            elif event.key_code in [ord(" "), ord("p")]:
                 self.connector.player.pause_play_toggle
             elif event.key_code in [ord("l"), Screen.KEY_RIGHT]:
                 self.connector.player.move_to_position_seconds(self.connector.player.position + 3)
-            elif event.key_code in [ord("l"), Screen.KEY_LEFT]:
+            elif event.key_code in [ord("h"), Screen.KEY_LEFT]:
                 self.connector.player.move_to_position_seconds(self.connector.player.position - 3)
+            elif event.key_code in [ord("k"), Screen.KEY_UP]:
+                self.connector.increase_volume()
+            elif event.key_code in [ord("j"), Screen.KEY_DOWN]:
+                self.connector.decrease_volume()
 
     def get_progress(self):
         return (self.connector.player.position / self.connector.player.length) * 100

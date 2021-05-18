@@ -94,3 +94,23 @@ class Connector:
             return None
         else:
             return stream['error']
+
+    def increase_volume(self):
+        """
+        Increase output master volume
+
+        Return:
+            None
+        """
+        curr_volume = self.player.volume
+        self.player.set_volume(curr_volume + 0.05)
+
+    def decrease_volume(self):
+        """
+        Decrease output master volume
+
+        Return:
+            None
+        """
+        curr_volume = self.player.volume
+        self.player.set_volume(curr_volume - 0.05)
