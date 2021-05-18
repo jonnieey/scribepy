@@ -23,12 +23,11 @@ SYNCPROC = pybass.SYNCPROC
 BASS_FILEPROCS = pybass.BASS_FILEPROCS
 
 if platform.system().lower() == 'windows':
-	bassmix_module = ctypes.WinDLL('bassmix')
-	func_type = ctypes.WINFUNCTYPE
+    bassmix_module = ctypes.WinDLL('bassmix')
+    func_type = ctypes.WINFUNCTYPE
 else:
-	bassmix_module = ctypes.CDLL('bassmix')
-	func_type = ctypes.CFUNCTYPE
-
+    bassmix_module = ctypes.CDLL('bassmix')
+    func_type = ctypes.CFUNCTYPE
 
 # additional BASS_SetConfig option
 BASS_CONFIG_MIXER_FILTER = 0x10600
@@ -51,9 +50,9 @@ BASS_MIXER_NORAMPIN = 0x800000# don't ramp-in the start
 
 # envelope node
 class BASS_MIXER_NODE(ctypes.Structure):
-	_fields_ = [('pos', ctypes.c_ulong),#QWORD pos;
-				('value', ctypes.c_float)#float value;
-				]
+    _fields_ = [('pos', ctypes.c_ulong),#QWORD pos;
+                ('value', ctypes.c_float)#float value;
+                ]
 
 # envelope types
 BASS_MIXER_ENV_FREQ = 1
@@ -67,7 +66,6 @@ BASS_SYNC_MIXER_ENVELOPE = 0x10200
 # BASS_CHANNELINFO type
 BASS_CTYPE_STREAM_MIXER = 0x10800
 BASS_CTYPE_STREAM_SPLIT = 0x10801
-
 
 #DWORD BASSMIXDEF(BASS_Mixer_GetVersion)();
 BASS_Mixer_GetVersion = func_type(ctypes.c_ulong)(('BASS_Mixer_GetVersion', bassmix_module))
@@ -115,6 +113,5 @@ BASS_Split_StreamGetSource = func_type(ctypes.c_ulong, HSTREAM)(('BASS_Split_Str
 #BOOL BASSMIXDEF(BASS_Split_StreamReset)(DWORD handle);
 BASS_Split_StreamReset = func_type(ctypes.c_byte, ctypes.c_ulong)(('BASS_Split_StreamReset', bassmix_module))
 
-
 if __name__ == "__main__":
-	print('BASS Mixer Version %X' % BASS_Mixer_GetVersion())
+    print('BASS Mixer Version %X' % BASS_Mixer_GetVersion())

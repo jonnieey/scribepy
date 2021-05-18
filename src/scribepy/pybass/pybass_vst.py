@@ -11,19 +11,17 @@ BASS_VST - An extension enabling the use of VST effect plugins with BASS.
 
 import sys, ctypes, platform, pybass
 
-
 HSTREAM = pybass.HSTREAM
 BASS_FILEPROCS = pybass.BASS_FILEPROCS
-
 
 BASS_VST_KEEP_CHANS = 0x00000001
 
 if platform.system().lower() == 'windows':
-	bass_vst_module = ctypes.WinDLL('bass_vst.dll')
-	func_type = ctypes.WINFUNCTYPE
+    bass_vst_module = ctypes.WinDLL('bass_vst.dll')
+    func_type = ctypes.WINFUNCTYPE
 else:
-	bass_vst_module = ctypes.CDLL('bass_vst')
-	func_type = ctypes.CFUNCTYPE
+    bass_vst_module = ctypes.CDLL('bass_vst')
+    func_type = ctypes.CFUNCTYPE
 
 BASS_VST_ChannelSetDSP = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_void_p, ctypes.c_ulong, ctypes.c_int)(('BASS_VST_ChannelSetDSP', bass_vst_module))
 
@@ -57,7 +55,7 @@ BASS_VST_SetProgram = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_int)(('BASS_VS
 
 BASS_VST_GetProgramParam = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_int)(('BASS_VST_GetProgramParam', bass_vst_module))
 
-BASS_VST_SetProgramParam = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_int, ctypes.POINTER(ctypes.c_float))(('BASS_VST_SetProgramParam', bass_vst_module)) 
+BASS_VST_SetProgramParam = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_int, ctypes.POINTER(ctypes.c_float))(('BASS_VST_SetProgramParam', bass_vst_module))
 
 BASS_VST_GetProgramName = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_int)(('BASS_VST_GetProgramName', bass_vst_module))
 

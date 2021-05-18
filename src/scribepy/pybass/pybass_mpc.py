@@ -20,19 +20,17 @@ DOWNLOADPROC = pybass.DOWNLOADPROC
 BASS_FILEPROCS = pybass.BASS_FILEPROCS
 
 if platform.system().lower() == 'windows':
-	bass_mpc_module = ctypes.WinDLL('bass_mpc')
-	func_type = ctypes.WINFUNCTYPE
+    bass_mpc_module = ctypes.WinDLL('bass_mpc')
+    func_type = ctypes.WINFUNCTYPE
 else:
-	bass_mpc_module = ctypes.CDLL('./BASS_modules/libbass_mpc.so')
-	func_type = ctypes.CFUNCTYPE
-
+    bass_mpc_module = ctypes.CDLL('./BASS_modules/libbass_mpc.so')
+    func_type = ctypes.CFUNCTYPE
 
 # Additional tags available from BASS_StreamGetTags
 BASS_TAG_APE = 6# APE tags
 
 # BASS_CHANNELINFO type
 BASS_CTYPE_STREAM_MPC = 0x10a00
-
 
 #HSTREAM BASSMPCDEF(BASS_MPC_StreamCreateFile)(BOOL mem, const void *file, QWORD offset, QWORD length, DWORD flags);
 BASS_MPC_StreamCreateFile = func_type(HSTREAM, ctypes.c_byte, ctypes.c_void_p, QWORD, QWORD, ctypes.c_ulong)(('BASS_MPC_StreamCreateFile', bass_mpc_module))
@@ -41,12 +39,11 @@ BASS_MPC_StreamCreateURL = func_type(HSTREAM, ctypes.c_char_p, ctypes.c_ulong, c
 #HSTREAM BASSMPCDEF(BASS_MPC_StreamCreateFileUser)(DWORD system, DWORD flags, const BASS_FILEPROCS *proc, void *user);
 BASS_MPC_StreamCreateFileUser = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_ulong, ctypes.POINTER(BASS_FILEPROCS), ctypes.c_void_p)(('BASS_MPC_StreamCreateFileUser', bass_mpc_module))
 
-
 if __name__ == "__main__":
-	if not pybass.BASS_Init(-1, 44100, 0, 0, 0):
-		print('BASS_Init error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
-	else:
-		handle = BASS_MPC_StreamCreateFile(False, b'test.mpc', 0, 0, 0)
-		pybass.play_handle(handle)
-		if not pybass.BASS_Free():
-			print('BASS_Free error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+    if not pybass.BASS_Init(-1, 44100, 0, 0, 0):
+        print('BASS_Init error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+    else:
+        handle = BASS_MPC_StreamCreateFile(False, b'test.mpc', 0, 0, 0)
+        pybass.play_handle(handle)
+        if not pybass.BASS_Free():
+            print('BASS_Free error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))

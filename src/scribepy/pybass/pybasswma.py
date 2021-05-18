@@ -29,12 +29,11 @@ BASS_FILEPROCS = pybass.BASS_FILEPROCS
 HWMENCODE = ctypes.c_ulong# WMA encoding handle
 
 if platform.system().lower() == 'windows':
-	basswma_module = ctypes.WinDLL('basswma')
-	func_type = ctypes.WINFUNCTYPE
+    basswma_module = ctypes.WinDLL('basswma')
+    func_type = ctypes.WINFUNCTYPE
 else:
-	basswma_module = ctypes.CDLL('basswma')
-	func_type = ctypes.CFUNCTYPE
-
+    basswma_module = ctypes.CDLL('basswma')
+    func_type = ctypes.CFUNCTYPE
 
 # Additional error codes returned by BASS_ErrorGetCode
 BASS_ERROR_WMA_LICENSE = 1000# the file is protected
@@ -68,7 +67,7 @@ BASS_WMA_ENCODE_SCRIPT = 0x20000# set script (mid-stream tags) in the WMA encodi
 BASS_WMA_ENCODE_RATES_VBR = 0x10000# get available VBR quality settings
 
 #typedef void (CALLBACK CLIENTCONNECTPROC)(HWMENCODE handle, BOOL connect, const char *ip, void *user);
-CLIENTCONNECTPROC = func_type(None, HWMENCODE, ctypes.c_byte, ctypes.c_char_p, ctypes.c_void_p) 
+CLIENTCONNECTPROC = func_type(None, HWMENCODE, ctypes.c_byte, ctypes.c_char_p, ctypes.c_void_p)
 # Client connection notification callback function.
 #handle : The encoder
 #connect: TRUE=client is connecting, FALSE=disconnecting
@@ -76,7 +75,7 @@ CLIENTCONNECTPROC = func_type(None, HWMENCODE, ctypes.c_byte, ctypes.c_char_p, c
 #user   : The 'user' parameter value given when calling BASS_WMA_EncodeSetNotify
 
 #typedef void (CALLBACK WMENCODEPROC)(HWMENCODE handle, DWORD type, const void *buffer, DWORD length, void *user);
-WMENCODEPROC = func_type(None, HWMENCODE, ctypes.c_ulong, ctypes.c_void_p, ctypes.c_ulong, ctypes.c_void_p) 
+WMENCODEPROC = func_type(None, HWMENCODE, ctypes.c_ulong, ctypes.c_void_p, ctypes.c_ulong, ctypes.c_void_p)
 # Encoder callback function.
 #handle : The encoder handle
 #type   : The type of data, one of BASS_WMA_ENCODE_xxx values
@@ -102,7 +101,6 @@ BASS_CTYPE_STREAM_WMA_MP3 = 0x10301
 # Additional BASS_ChannelGetTags types
 BASS_TAG_WMA = 8# WMA header tags : series of null-terminated UTF-8 strings
 BASS_TAG_WMA_META = 11# WMA mid-stream tag : UTF-8 string
-
 
 #HSTREAM BASSWMADEF(BASS_WMA_StreamCreateFile)(BOOL mem, const void *file, QWORD offset, QWORD length, DWORD flags);
 BASS_WMA_StreamCreateFile = func_type(HSTREAM, ctypes.c_byte, ctypes.c_void_p, QWORD, QWORD, ctypes.c_ulong)(('BASS_WMA_StreamCreateFile', basswma_module))
@@ -144,12 +142,11 @@ BASS_WMA_EncodeClose = func_type(ctypes.c_byte, HWMENCODE)(('BASS_WMA_EncodeClos
 #void *BASSWMADEF(BASS_WMA_GetWMObject)(DWORD handle);
 BASS_WMA_GetWMObject = func_type(ctypes.c_void_p, ctypes.c_ulong)(('BASS_WMA_GetWMObject', basswma_module))
 
-
 if __name__ == "__main__":
-	if not pybass.BASS_Init(-1, 44100, 0, 0, 0):
-		print('BASS_Init error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
-	else:
-		handle = BASS_WMA_StreamCreateFile(False, b'test.wma', 0, 0, 0)
-		pybass.play_handle(handle)
-		if not pybass.BASS_Free():
-			print('BASS_Free error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+    if not pybass.BASS_Init(-1, 44100, 0, 0, 0):
+        print('BASS_Init error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+    else:
+        handle = BASS_WMA_StreamCreateFile(False, b'test.wma', 0, 0, 0)
+        pybass.play_handle(handle)
+        if not pybass.BASS_Free():
+            print('BASS_Free error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))

@@ -8,22 +8,20 @@ __doc__ = '''
 pybasswasapi.py - is ctypes python module for WASAPI (http://www.un4seen.com).
 
 BASSWASAPI is basically a wrapper for WASAPI drivers
-BASSWASAPI requires a soundcard with WASAPI drivers. 
+BASSWASAPI requires a soundcard with WASAPI drivers.
 '''
 
 import sys, ctypes, platform, pybass
 
-
 HSTREAM = pybass.HSTREAM
 BASS_FILEPROCS = pybass.BASS_FILEPROCS
 
-
 if platform.system().lower() == 'windows':
-	basswasapi_module = ctypes.WinDLL('basswasapi')
-	func_type = ctypes.WINFUNCTYPE
+    basswasapi_module = ctypes.WinDLL('basswasapi')
+    func_type = ctypes.WINFUNCTYPE
 else:
-	basswasapi_module = ctypes.CDLL('basswasapi')
-	func_type = ctypes.CFUNCTYPE
+    basswasapi_module = ctypes.CDLL('basswasapi')
+    func_type = ctypes.CFUNCTYPE
 
 # Additional error codes returned by BASS_ErrorGetCode
 BASS_ERROR_WASAPI = 5000
@@ -38,7 +36,7 @@ class BASS_WASAPI_DEVICEINFO(ctypes.Structure):
         ('minperiod', ctypes.c_float),
         ('defperiod', ctypes.c_float),
         ('mixfreq', ctypes.c_ulong),
-        ('mixchans', ctypes.c_ulong)      
+        ('mixchans', ctypes.c_ulong)
     ]
 
 class BASS_WASAPI_INFO(ctypes.Structure):
@@ -106,7 +104,6 @@ BASS_WASAPI_NOTIFY_DISABLED = 1
 BASS_WASAPI_NOTIFY_DEFOUTPUT = 2
 BASS_WASAPI_NOTIFY_DEFINPUT = 3
 
-
 # DWORD BASSWASAPIDEF(BASS_WASAPI_GetVersion)();
 BASS_WASAPI_GetVersion = func_type(HSTREAM)(('BASS_WASAPI_GetVersion', basswasapi_module))
 # BOOL BASSWASAPIDEF(BASS_WASAPI_SetNotify)(WASAPINOTIFYPROC *proc, void *user);
@@ -152,7 +149,6 @@ BASS_WASAPI_GetData = func_type(HSTREAM, ctypes.c_void_p, ctypes.c_ulong)(('BASS
 # DWORD BASSDEF(BASS_WASAPI_GetLevel)();
 BASS_WASAPI_GetLevel = func_type(HSTREAM)(('BASS_WASAPI_GetLevel', basswasapi_module))
 
-
 if __name__ == "__main__":
         WasapiProc = WASAPIPROC()
         print('BASSWASAPI real Version %X' % BASS_WASAPI_GetVersion())
@@ -160,6 +156,5 @@ if __name__ == "__main__":
                 print('failed, try shared mode')
                 if not BASS_WASAPI_Init(-1,48000,2,BASS_WASAPI_AUTOFORMAT,0.015,0.005,WasapiProc,None):
                         print('BASS_WASAPI error %s') % get_error_description(BASS_ErrorGetCode())
-                        
-        
+
         #BASS_WASAPI_GetInfo(BASS_WASAPI_INFO)

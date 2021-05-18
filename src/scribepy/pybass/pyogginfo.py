@@ -8,16 +8,16 @@ CHAR_CODEC = 'cp1251'
 
 from sys import hexversion
 if hexversion < 0x03000000:
-	_range = xrange
-	_chr = chr
+    _range = xrange
+    _chr = chr
 else:
-	_range = range
-	def _chr(value):
-		return bytes([value])
+    _range = range
+    def _chr(value):
+        return bytes([value])
 
 import struct
 
-_crc = (    
+_crc = (
 0x00000000,0x04c11db7,0x09823b6e,0x0d4326d9,
 0x130476dc,0x17c56b6b,0x1a864db2,0x1e475005,
 0x2608edb8,0x22c9f00f,0x2f8ad6d6,0x2b4bcb61,
@@ -85,374 +85,374 @@ _crc = (
 )
 
 def checksum(header, body):
-	reg = 0
-	for c in header:
-		reg = ((reg << 8) & 0xffffffff) ^ _crc[ ((reg >> 24) & 0xff) ^ ord(c) ]
-	for i in (0,0,0,0):
-		reg = ((reg << 8) & 0xffffffff) ^ _crc[ ((reg >> 24) & 0xff) ^ i ]
-	for c in body:
-		reg = ((reg << 8) & 0xffffffff) ^ _crc[ ((reg >> 24) & 0xff) ^ ord(c) ]
-	return reg
+    reg = 0
+    for c in header:
+        reg = ((reg << 8) & 0xffffffff) ^ _crc[ ((reg >> 24) & 0xff) ^ ord(c) ]
+    for i in (0,0,0,0):
+        reg = ((reg << 8) & 0xffffffff) ^ _crc[ ((reg >> 24) & 0xff) ^ i ]
+    for c in body:
+        reg = ((reg << 8) & 0xffffffff) ^ _crc[ ((reg >> 24) & 0xff) ^ ord(c) ]
+    return reg
 
 def split_segments(data, segs):
-	segments = []
-	start = 0
-	stop = 0
-	map_segs = segs
-	if hexversion < 0x03000000:
-		map_segs = map(ord, segs)
-	for length in map_segs:
-		if length:
-			stop += length
-			segments.append(data[start:stop])
-			start = stop
-		else:
-			segments.append(b'')
-	return segments
+    segments = []
+    start = 0
+    stop = 0
+    map_segs = segs
+    if hexversion < 0x03000000:
+        map_segs = map(ord, segs)
+    for length in map_segs:
+        if length:
+            stop += length
+            segments.append(data[start:stop])
+            start = stop
+        else:
+            segments.append(b'')
+    return segments
 
 def segmentsToPackets(segments):
-	packets = []
-	packet = []
-	for segment in segments:
-		packet.append(segment)
-		if len(segment) != 255:
-			packets.append(b''.join(packet))
-			packet = []
-	return packets, packet
+    packets = []
+    packet = []
+    for segment in segments:
+        packet.append(segment)
+        if len(segment) != 255:
+            packets.append(b''.join(packet))
+            packet = []
+    return packets, packet
 
 class OggPage(object):
-	version = 0
-	headerType = None
-	streamID = None
-	granulePosition = None
-	sequenceNumber = None
-	segments = None
-	checksum = None
-	rawData = None
-	def continued(self):
-		return self.segments[-1] == 255
-	continued = property(continued)
-	def packetCount(self):
-		return len([s for s in self.segments if len(s) != 255])
-	def getPackets(self):
-		return segmentsToPackets(self.segments)
-	def dataLength(self):
-		return sum(map(len, self.segments))
-	def pageOverhead(self):
-		return 27 + len(self.segments)
-	def payload(self):
-		return self.pageOverhead() + self.dataLength()
-	def pack(self):
-		header = struct.pack("<4sBBqLL", b'OggS', self.version, self.headerType, self.granulePosition, self.streamID, self.sequenceNumber)
-		def _(s):
-			return _chr(len(s))
-		body = b''.join( [ _chr(len(self.segments)) ] + map(_, self.segments) + self.segments )
-		return b''.join([ header, struct.pack("<L", checksum(header, body)), body ])
-	def __repr__(self):
-		return '<OggPage version=%r headerType=%r streamID=%r granulePosition=%r sequenceNumber=%r continued=%r segments=%r payload=%r>'%(self.version, self.headerType, self.streamID, self.granulePosition, self.sequenceNumber, self.continued, len(self.segments), self.payload())
+    version = 0
+    headerType = None
+    streamID = None
+    granulePosition = None
+    sequenceNumber = None
+    segments = None
+    checksum = None
+    rawData = None
+    def continued(self):
+        return self.segments[-1] == 255
+    continued = property(continued)
+    def packetCount(self):
+        return len([s for s in self.segments if len(s) != 255])
+    def getPackets(self):
+        return segmentsToPackets(self.segments)
+    def dataLength(self):
+        return sum(map(len, self.segments))
+    def pageOverhead(self):
+        return 27 + len(self.segments)
+    def payload(self):
+        return self.pageOverhead() + self.dataLength()
+    def pack(self):
+        header = struct.pack("<4sBBqLL", b'OggS', self.version, self.headerType, self.granulePosition, self.streamID, self.sequenceNumber)
+        def _(s):
+            return _chr(len(s))
+        body = b''.join( [ _chr(len(self.segments)) ] + map(_, self.segments) + self.segments )
+        return b''.join([ header, struct.pack("<L", checksum(header, body)), body ])
+    def __repr__(self):
+        return '<OggPage version=%r headerType=%r streamID=%r granulePosition=%r sequenceNumber=%r continued=%r segments=%r payload=%r>'%(self.version, self.headerType, self.streamID, self.granulePosition, self.sequenceNumber, self.continued, len(self.segments), self.payload())
 
 class iobuffer(object):
-	def __init__(self, data = b''):
-		self.data = data
-		self.offset = 0
-		self.bytes = 0
-		self.length = len(data)
-	def write(self, data):
-		self.data = b''.join([ self.data[self.offset:], data ])
-		self.offset = 0
-		self.length += len(data)
-	def __len__(self):
-		return self.length
-	def read(self, count):
-		assert self.length >= count
-		chunk = self.data[self.offset:self.offset+count]
-		self.length -= count
-		self.offset += count
-		self.bytes += len(chunk)
-		return chunk
-	def unpack(self, format, size = None):
-		if size is None:
-			size = struct.calcsize(format)
-		return struct.unpack(format, self.read(size))
-	def unread(self, data):
-		self.data = b''.join([ data, self.data[self.offset:] ])
-		self.offset = 0
-		self.length += len(data)
+    def __init__(self, data = b''):
+        self.data = data
+        self.offset = 0
+        self.bytes = 0
+        self.length = len(data)
+    def write(self, data):
+        self.data = b''.join([ self.data[self.offset:], data ])
+        self.offset = 0
+        self.length += len(data)
+    def __len__(self):
+        return self.length
+    def read(self, count):
+        assert self.length >= count
+        chunk = self.data[self.offset:self.offset+count]
+        self.length -= count
+        self.offset += count
+        self.bytes += len(chunk)
+        return chunk
+    def unpack(self, format, size = None):
+        if size is None:
+            size = struct.calcsize(format)
+        return struct.unpack(format, self.read(size))
+    def unread(self, data):
+        self.data = b''.join([ data, self.data[self.offset:] ])
+        self.offset = 0
+        self.length += len(data)
 
 class Parser(object):
-	expected = 0
-	processed = 0
-	def __init__(self, expected):
-		self._buffer = iobuffer()
-		self.expected = expected
-	def buffered(self):
-		return self._buffer.data[self._buffer.offset:]
-	def required(self):
-		return self.expected - len(self._buffer)
-	def process(self, data):
-		self._buffer.write(data)
-		while len(self._buffer) >= self.expected:
-			chunk = self._buffer.read(self.expected)
-			try:
-				self.expected = self.processChunk(chunk)
-				self.processed += len(chunk)
-			except:
-				raise
-	def processChunk(self, chunk):
-		raise NotImplementedError
+    expected = 0
+    processed = 0
+    def __init__(self, expected):
+        self._buffer = iobuffer()
+        self.expected = expected
+    def buffered(self):
+        return self._buffer.data[self._buffer.offset:]
+    def required(self):
+        return self.expected - len(self._buffer)
+    def process(self, data):
+        self._buffer.write(data)
+        while len(self._buffer) >= self.expected:
+            chunk = self._buffer.read(self.expected)
+            try:
+                self.expected = self.processChunk(chunk)
+                self.processed += len(chunk)
+            except:
+                raise
+    def processChunk(self, chunk):
+        raise NotImplementedError
 
 class OggReader(Parser):
-	pages = 0
-	HEADER_LENGTH = 27
-	def __init__(self):
-		Parser.__init__(self, self.HEADER_LENGTH)
-		self.__currentPage = None
-		self.processChunk = self.processHeader
-	def processHeader(self, data):
-		self.__currentPage = p = OggPage()
-		(magic, p.version, p.headerType, p.granulePosition, p.streamID, p.sequenceNumber, p.checksum, nseg) = struct.unpack("<4sBBqLLLB", data)
-		if magic != b'OggS':
-			raise ValueError('Not an ogg page')
-		self.__raw = [ data ]
-		self.processChunk = self.processSegmentTable
-		return nseg
-	def processSegmentTable(self, data):
-		self.__segmentTable = data
-		self.__raw.append(data)
-		self.processChunk = self.processSegments
-		if hexversion < 0x03000000:
-			return sum(map(ord, data))
-		else:
-			return sum(data)
-	def processSegments(self, data):
-		page = self.__currentPage
-		page.segments = split_segments(data, self.__segmentTable)
-		self.__raw.append(data)
-		page.rawData = b''.join(self.__raw)
-		self.pageReceived(page)
-		self.pages += 1
-		self.processChunk = self.processHeader
-		return self.HEADER_LENGTH
-	def outOfBandDataReceived(self, data):
-		pass
-	def pageReceived(self, page):
-		raise NotImplementedError
+    pages = 0
+    HEADER_LENGTH = 27
+    def __init__(self):
+        Parser.__init__(self, self.HEADER_LENGTH)
+        self.__currentPage = None
+        self.processChunk = self.processHeader
+    def processHeader(self, data):
+        self.__currentPage = p = OggPage()
+        (magic, p.version, p.headerType, p.granulePosition, p.streamID, p.sequenceNumber, p.checksum, nseg) = struct.unpack("<4sBBqLLLB", data)
+        if magic != b'OggS':
+            raise ValueError('Not an ogg page')
+        self.__raw = [ data ]
+        self.processChunk = self.processSegmentTable
+        return nseg
+    def processSegmentTable(self, data):
+        self.__segmentTable = data
+        self.__raw.append(data)
+        self.processChunk = self.processSegments
+        if hexversion < 0x03000000:
+            return sum(map(ord, data))
+        else:
+            return sum(data)
+    def processSegments(self, data):
+        page = self.__currentPage
+        page.segments = split_segments(data, self.__segmentTable)
+        self.__raw.append(data)
+        page.rawData = b''.join(self.__raw)
+        self.pageReceived(page)
+        self.pages += 1
+        self.processChunk = self.processHeader
+        return self.HEADER_LENGTH
+    def outOfBandDataReceived(self, data):
+        pass
+    def pageReceived(self, page):
+        raise NotImplementedError
 
 class OggDemultiplexer(OggReader):
-	def __init__(self):
-		OggReader.__init__(self)
-		self.streams = {}
-		self.readingHeaders = True
-	def buildStream(self, packet):
-		return self.streamFactory(self, packet)
-	def pageReceived(self, page):
-		if self.readingHeaders:
-			if page.headerType & 0x02:
-				assert page.headerType & 0x01 == 0
-				assert page.headerType & 0x04 == 0
-				assert page.streamID not in self.streams
-				assert not page.continued
-				packets, left = page.getPackets()
-				assert len(packets) == 1
-				stream = self.buildStream(packets[0])
-				stream.processPage(page)
-				self.streams[page.streamID] = stream
-				return
-			self.readingHeaders = False
-		assert page.headerType & 0x02 == 0
-		assert page.streamID in self.streams
-		stream = self.streams[page.streamID]
-		stream.processPage(page)
-		if page.headerType & 0x04:
-			stream.endStream()
-			del self.streams[page.streamID]
-			if len(self.streams) == 0:
-				self.allStreamsEnded()
-	def outOfBandPageReceived(self, page):
-		pass
-	def allStreamsEnded(self):
-		self.readingHeaders = True
+    def __init__(self):
+        OggReader.__init__(self)
+        self.streams = {}
+        self.readingHeaders = True
+    def buildStream(self, packet):
+        return self.streamFactory(self, packet)
+    def pageReceived(self, page):
+        if self.readingHeaders:
+            if page.headerType & 0x02:
+                assert page.headerType & 0x01 == 0
+                assert page.headerType & 0x04 == 0
+                assert page.streamID not in self.streams
+                assert not page.continued
+                packets, left = page.getPackets()
+                assert len(packets) == 1
+                stream = self.buildStream(packets[0])
+                stream.processPage(page)
+                self.streams[page.streamID] = stream
+                return
+            self.readingHeaders = False
+        assert page.headerType & 0x02 == 0
+        assert page.streamID in self.streams
+        stream = self.streams[page.streamID]
+        stream.processPage(page)
+        if page.headerType & 0x04:
+            stream.endStream()
+            del self.streams[page.streamID]
+            if len(self.streams) == 0:
+                self.allStreamsEnded()
+    def outOfBandPageReceived(self, page):
+        pass
+    def allStreamsEnded(self):
+        self.readingHeaders = True
 
 class SimpleDemultiplexer(OggDemultiplexer):
-	def __init__(self, streamReader):
-		OggDemultiplexer.__init__(self)
-		self.streamReader = streamReader
-	def buildStream(self, packet):
-		assert len(self.streams) == 0
-		return self.streamReader
+    def __init__(self, streamReader):
+        OggDemultiplexer.__init__(self)
+        self.streamReader = streamReader
+    def buildStream(self, packet):
+        assert len(self.streams) == 0
+        return self.streamReader
 
 class VorbisIdentification(object):
-	version = None
-	audioChannels = None
-	sampleRate = None
-	maximumBitrate = None
-	nominalBitrate = None
-	minimumBitrate = None
-	blocksize = None
-	#~ PACKET_HEADER = chr(1) + b'vorbis'
-	PACKET_HEADER = b'\x01vorbis'
-	def __repr__(self):
-		return '<VorbisIdentification version=%r audioChannels=%r sampleRate=%r bitrates=[ %r, %r, %r ] blocksize=%r>'%(self.version, self.audioChannels, self.sampleRate, self.minimumBitrate, self.nominalBitrate, self.maximumBitrate, self.blocksize)
-	def positionToSeconds(self, position):
-		return float(position) / self.sampleRate
-	def pack(self):
-		return ''.join([self.PACKET_HEADER, s.pack("<IBIiiiBB", self.version, self.audioChannels, self.sampleRate, self.maximumBitrate, self.nominalBitrate, self.minimumBitrate, self.blocksize, 1),])
+    version = None
+    audioChannels = None
+    sampleRate = None
+    maximumBitrate = None
+    nominalBitrate = None
+    minimumBitrate = None
+    blocksize = None
+    #~ PACKET_HEADER = chr(1) + b'vorbis'
+    PACKET_HEADER = b'\x01vorbis'
+    def __repr__(self):
+        return '<VorbisIdentification version=%r audioChannels=%r sampleRate=%r bitrates=[ %r, %r, %r ] blocksize=%r>'%(self.version, self.audioChannels, self.sampleRate, self.minimumBitrate, self.nominalBitrate, self.maximumBitrate, self.blocksize)
+    def positionToSeconds(self, position):
+        return float(position) / self.sampleRate
+    def pack(self):
+        return ''.join([self.PACKET_HEADER, s.pack("<IBIiiiBB", self.version, self.audioChannels, self.sampleRate, self.maximumBitrate, self.nominalBitrate, self.minimumBitrate, self.blocksize, 1),])
 
 class VorbisComments(object):
-	vendor = None
-	comments = None
-	#~ PACKET_HEADER = chr(3) + b'vorbis'
-	PACKET_HEADER = b'\x03vorbis'
-	def pack(self):
-		vendor = self.vendor.encode(CHAR_CODEC)
-		data = [ self.PACKET_HEADER, struct.pack("<L", len(vendor)), vendor, struct.pack("<L", len(self.comments)) ]
-		for key, value in self.comments:
-			key = key.upper()
-			value = value.encode(CHAR_CODEC)
-			data.append(struct.pack("<L", len(key) + 1 + len(value)))
-			data.append(key)
-			data.append(b'=')
-			data.append(value)
-		data.append(b'\x01')
-		return ''.join(data)
+    vendor = None
+    comments = None
+    #~ PACKET_HEADER = chr(3) + b'vorbis'
+    PACKET_HEADER = b'\x03vorbis'
+    def pack(self):
+        vendor = self.vendor.encode(CHAR_CODEC)
+        data = [ self.PACKET_HEADER, struct.pack("<L", len(vendor)), vendor, struct.pack("<L", len(self.comments)) ]
+        for key, value in self.comments:
+            key = key.upper()
+            value = value.encode(CHAR_CODEC)
+            data.append(struct.pack("<L", len(key) + 1 + len(value)))
+            data.append(key)
+            data.append(b'=')
+            data.append(value)
+        data.append(b'\x01')
+        return ''.join(data)
 
 class VorbisSetup(object):
-	codebooks = None
-	timeDomainTransforms = None
-	floorType = None
-	residues = None
-	mappings = None
-	modes = None
-	#~ PACKET_HEADER = chr(5) + b'vorbis'
-	PACKET_HEADER = b'\x05vorbis'
-	def pack(self):
-		return self.rawPacket
+    codebooks = None
+    timeDomainTransforms = None
+    floorType = None
+    residues = None
+    mappings = None
+    modes = None
+    #~ PACKET_HEADER = chr(5) + b'vorbis'
+    PACKET_HEADER = b'\x05vorbis'
+    def pack(self):
+        return self.rawPacket
 
 class OggStreamReader(object):
-	pages = 0
-	__segments = None
-	def endStream(self):
-		pass
-	def processPage(self, page):
-		position = page.granulePosition
-		if self.__segments is None:
-			self.__segments = []
-		self.__segments.extend(page.segments)
-		packets, self.__segments = segmentsToPackets(self.__segments)
-		if packets:
-			self.packetsReceived(packets, position)
-		else:
-			assert position == -1
-		self.pages += 1
-	def packetsReceived(self, packets, position):
-		pass
+    pages = 0
+    __segments = None
+    def endStream(self):
+        pass
+    def processPage(self, page):
+        position = page.granulePosition
+        if self.__segments is None:
+            self.__segments = []
+        self.__segments.extend(page.segments)
+        packets, self.__segments = segmentsToPackets(self.__segments)
+        if packets:
+            self.packetsReceived(packets, position)
+        else:
+            assert position == -1
+        self.pages += 1
+    def packetsReceived(self, packets, position):
+        pass
 
 class VorbisStreamReader(OggStreamReader):
-	identification = None
-	comments = None
-	setup = None
-	def __init__(self):
-		OggStreamReader.__init__(self)
-		self.__expected = 'identification'
-	def packetsReceived(self, packets, position):
-		if not self.__expected:
-			return self.audioPacketsReceived(packets, position)
-		assert position == 0
-		for packet in packets:
-			handler = getattr(self, 'read_%s' % self.__expected)
-			handler(packet)
-	def read_identification(self, packet):
-		s = iobuffer(packet)
-		header = VorbisIdentification.PACKET_HEADER
-		assert s.read(len(header)) == header
-		i = VorbisIdentification()
-		(i.version, i.audioChannels, i.sampleRate, i.maximumBitrate, i.nominalBitrate, i.minimumBitrate, i.blocksize, framingFlag) = s.unpack("<IBIiiiBB")
-		assert len(s) == 0
-		self.__expected = 'comments'
-		self.identificationReceived(i)
-	def read_comments(self, packet):
-		s = iobuffer(packet)
-		header = VorbisComments.PACKET_HEADER
-		assert s.read(len(header)) == header
-		length, = s.unpack("<L")
-		comments = VorbisComments()
-		comments.vendor = s.read(length).decode(CHAR_CODEC)
-		comments.comments = []
-		ncomments, = s.unpack("<L")
-		for i in _range(ncomments):
-			length, = s.unpack("<L")
-			key, value = s.read(length).split(b'=', 1)
-			comments.comments.append([key.upper(), value.decode(CHAR_CODEC)])
-		assert s.read(1) == b'\x01'
-		assert len(s) == 0
-		self.__expected = 'setup'
-		self.commentsReceived(comments)
-	def read_setup(self, packet):
-		assert packet.startswith(VorbisSetup.PACKET_HEADER)
-		setup = VorbisSetup()
-		setup.rawPacket = packet
-		self.__expected = None
-		self.setupReceived(setup)
-	def identificationReceived(self, identification):
-		self.identification = identification
-	def commentsReceived(self, comments):
-		self.comments = comments
-	def setupReceived(self, setup):
-		self.setup = setup
-	def audioPacketsReceived(self, packets, position):
-		pass
+    identification = None
+    comments = None
+    setup = None
+    def __init__(self):
+        OggStreamReader.__init__(self)
+        self.__expected = 'identification'
+    def packetsReceived(self, packets, position):
+        if not self.__expected:
+            return self.audioPacketsReceived(packets, position)
+        assert position == 0
+        for packet in packets:
+            handler = getattr(self, 'read_%s' % self.__expected)
+            handler(packet)
+    def read_identification(self, packet):
+        s = iobuffer(packet)
+        header = VorbisIdentification.PACKET_HEADER
+        assert s.read(len(header)) == header
+        i = VorbisIdentification()
+        (i.version, i.audioChannels, i.sampleRate, i.maximumBitrate, i.nominalBitrate, i.minimumBitrate, i.blocksize, framingFlag) = s.unpack("<IBIiiiBB")
+        assert len(s) == 0
+        self.__expected = 'comments'
+        self.identificationReceived(i)
+    def read_comments(self, packet):
+        s = iobuffer(packet)
+        header = VorbisComments.PACKET_HEADER
+        assert s.read(len(header)) == header
+        length, = s.unpack("<L")
+        comments = VorbisComments()
+        comments.vendor = s.read(length).decode(CHAR_CODEC)
+        comments.comments = []
+        ncomments, = s.unpack("<L")
+        for i in _range(ncomments):
+            length, = s.unpack("<L")
+            key, value = s.read(length).split(b'=', 1)
+            comments.comments.append([key.upper(), value.decode(CHAR_CODEC)])
+        assert s.read(1) == b'\x01'
+        assert len(s) == 0
+        self.__expected = 'setup'
+        self.commentsReceived(comments)
+    def read_setup(self, packet):
+        assert packet.startswith(VorbisSetup.PACKET_HEADER)
+        setup = VorbisSetup()
+        setup.rawPacket = packet
+        self.__expected = None
+        self.setupReceived(setup)
+    def identificationReceived(self, identification):
+        self.identification = identification
+    def commentsReceived(self, comments):
+        self.comments = comments
+    def setupReceived(self, setup):
+        self.setup = setup
+    def audioPacketsReceived(self, packets, position):
+        pass
 
 class VorbisStreamInfo(VorbisStreamReader):
-	lastPosition = None
-	startPosition = None
-	payload    = 0
-	overhead   = 0
-	pageCount  = 0
-	audioPackets = 0
-	audioPacketLength = 0
-	stop = 0
-	start = 0
-	def pageReceived(self, page):
-		self.pageCount += 1
-		self.payload += page.payload()
-		self.overhead += page.pageOverhead()
-		VorbisStreamReader.pageReceived(self, page)
-	def audioPacketsReceived(self, packets, position):
-		if self.startPosition is None:
-			self.startPosition = position
-		self.lastPosition = position
-		self.audioPackets += len(packets)
-		self.audioPacketLength += sum(map(len, packets))
-	def identificationReceived(self, identification):
-		self.identification = identification
-	def setupReceived(self, setup):
-		self.setup = setup
-	def commentsReceived(self, comments):
-		self.comments = comments
-	def endStream(self):
-		self.stop = self.identification.positionToSeconds(self.lastPosition)
-		self.start = self.identification.positionToSeconds(self.startPosition)
+    lastPosition = None
+    startPosition = None
+    payload    = 0
+    overhead   = 0
+    pageCount  = 0
+    audioPackets = 0
+    audioPacketLength = 0
+    stop = 0
+    start = 0
+    def pageReceived(self, page):
+        self.pageCount += 1
+        self.payload += page.payload()
+        self.overhead += page.pageOverhead()
+        VorbisStreamReader.pageReceived(self, page)
+    def audioPacketsReceived(self, packets, position):
+        if self.startPosition is None:
+            self.startPosition = position
+        self.lastPosition = position
+        self.audioPackets += len(packets)
+        self.audioPacketLength += sum(map(len, packets))
+    def identificationReceived(self, identification):
+        self.identification = identification
+    def setupReceived(self, setup):
+        self.setup = setup
+    def commentsReceived(self, comments):
+        self.comments = comments
+    def endStream(self):
+        self.stop = self.identification.positionToSeconds(self.lastPosition)
+        self.start = self.identification.positionToSeconds(self.startPosition)
 
 if __name__ == "__main__":
-	from sys import hexversion
-	info = VorbisStreamInfo()
-	stream = SimpleDemultiplexer(info)
-	stream.process(open('test.ogg', 'rb').read())
-	print('size            : %d' % info.payload)
-	print('overhead        : %d' % info.overhead)
-	print('pages           : %d' % info.pageCount)
-	print('audio packets   : %d' % info.audioPackets)
-	print('audio length    : %d' % info.audioPacketLength)
-	print('vendor          : %s' % info.comments.vendor)
-	print('comment entries : %d' % len(info.comments.comments))
-	for key, value in info.comments.comments:
-		if hexversion < 0x03000000:
-			print('- %s: %s' % (key, value.encode(CHAR_CODEC)))
-		else:
-			print('- %s: %s' % (key, value))
-	print('sample rate     : %d' % info.identification.sampleRate)
-	print('audio channels  : %d' % info.identification.audioChannels)
-	print('nominal bitrate : %d' % info.identification.nominalBitrate)
-	print('first frame     : %fs' % info.start)
-	import datetime
-	print('duration        : %s' % datetime.timedelta(seconds=info.stop-info.start))
+    from sys import hexversion
+    info = VorbisStreamInfo()
+    stream = SimpleDemultiplexer(info)
+    stream.process(open('test.ogg', 'rb').read())
+    print('size            : %d' % info.payload)
+    print('overhead        : %d' % info.overhead)
+    print('pages           : %d' % info.pageCount)
+    print('audio packets   : %d' % info.audioPackets)
+    print('audio length    : %d' % info.audioPacketLength)
+    print('vendor          : %s' % info.comments.vendor)
+    print('comment entries : %d' % len(info.comments.comments))
+    for key, value in info.comments.comments:
+        if hexversion < 0x03000000:
+            print('- %s: %s' % (key, value.encode(CHAR_CODEC)))
+        else:
+            print('- %s: %s' % (key, value))
+    print('sample rate     : %d' % info.identification.sampleRate)
+    print('audio channels  : %d' % info.identification.audioChannels)
+    print('nominal bitrate : %d' % info.identification.nominalBitrate)
+    print('first frame     : %fs' % info.start)
+    import datetime
+    print('duration        : %s' % datetime.timedelta(seconds=info.stop-info.start))

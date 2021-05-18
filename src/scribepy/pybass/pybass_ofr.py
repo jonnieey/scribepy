@@ -18,12 +18,11 @@ HSTREAM = pybass.HSTREAM
 BASS_FILEPROCS = pybass.BASS_FILEPROCS
 
 if platform.system().lower() == 'windows':
-	bass_ofr_module = ctypes.WinDLL('bass_ofr')
-	func_type = ctypes.WINFUNCTYPE
+    bass_ofr_module = ctypes.WinDLL('bass_ofr')
+    func_type = ctypes.WINFUNCTYPE
 else:
-	bass_ofr_module = ctypes.CDLL('bass_mpc')
-	func_type = ctypes.CFUNCTYPE
-
+    bass_ofr_module = ctypes.CDLL('bass_mpc')
+    func_type = ctypes.CFUNCTYPE
 
 # Additional tags available from BASS_StreamGetTags
 BASS_TAG_APE = 6# APE tags
@@ -31,18 +30,16 @@ BASS_TAG_APE = 6# APE tags
 # BASS_CHANNELINFO type
 BASS_CTYPE_STREAM_OFR = 0x10600
 
-
 #HSTREAM BASSOFRDEF(BASS_OFR_StreamCreateFile)(BOOL mem, const void *file, QWORD offset, QWORD length, DWORD flags);
 BASS_OFR_StreamCreateFile = func_type(HSTREAM, ctypes.c_byte, ctypes.c_void_p, QWORD, QWORD, ctypes.c_ulong)(('BASS_OFR_StreamCreateFile', bass_ofr_module))
 #HSTREAM BASSOFRDEF(BASS_OFR_StreamCreateFileUser)(DWORD system, DWORD flags, const BASS_FILEPROCS *procs, void *user);
 BASS_OFR_StreamCreateFileUser = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_ulong, ctypes.POINTER(BASS_FILEPROCS), ctypes.c_void_p)(('BASS_OFR_StreamCreateFileUser', bass_ofr_module))
 
-
 if __name__ == "__main__":
-	if not pybass.BASS_Init(-1, 44100, 0, 0, 0):
-		print('BASS_Init error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
-	else:
-		handle = BASS_OFR_StreamCreateFile(False, b'test.ofr', 0, 0, 0)
-		pybass.play_handle(handle)
-		if not pybass.BASS_Free():
-			print('BASS_Free error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+    if not pybass.BASS_Init(-1, 44100, 0, 0, 0):
+        print('BASS_Init error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+    else:
+        handle = BASS_OFR_StreamCreateFile(False, b'test.ofr', 0, 0, 0)
+        pybass.play_handle(handle)
+        if not pybass.BASS_Free():
+            print('BASS_Free error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))

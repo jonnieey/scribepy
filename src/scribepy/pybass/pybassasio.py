@@ -23,17 +23,17 @@ for decoding purposes, to apply DSP/FX, etc...
 import sys, ctypes, platform
 
 if platform.system().lower() == 'windows':
-	bassasio_module = ctypes.WinDLL('bassasio')
-	func_type = ctypes.WINFUNCTYPE
+    bassasio_module = ctypes.WinDLL('bassasio')
+    func_type = ctypes.WINFUNCTYPE
 else:
-	bassasio_module = ctypes.CDLL('bassasio')
-	func_type = ctypes.CFUNCTYPE
+    bassasio_module = ctypes.CDLL('bassasio')
+    func_type = ctypes.CFUNCTYPE
 
 BASSASIOVERSION = 0x100
 
 # error codes returned by BASS_ASIO_ErrorGetCode
 error_descriptions = {}
-BASS_OK = 0 
+BASS_OK = 0
 error_descriptions[BASS_OK] = 'all is OK'
 BASS_ERROR_DRIVER = 3
 error_descriptions[BASS_ERROR_DRIVER] = "can't find a free/valid driver"
@@ -57,30 +57,30 @@ BASS_ERROR_UNKNOWN = -1
 error_descriptions[BASS_ERROR_UNKNOWN] = 'some other mystery problem'
 
 def get_error_description(error_code = -1):
-	return error_descriptions.get(error_code, 'unknown BASS error code ' + str(error_code))
+    return error_descriptions.get(error_code, 'unknown BASS error code ' + str(error_code))
 
 # device info structure
 class BASS_ASIO_DEVICEINFO(ctypes.Structure):
-	_fields_ = [('name', ctypes.c_char_p),#const char *name;//  description
-				('driver', ctypes.c_char_p)#const char *driver;// driver
-				]
+    _fields_ = [('name', ctypes.c_char_p),#const char *name;//  description
+                ('driver', ctypes.c_char_p)#const char *driver;// driver
+                ]
 
 class BASS_ASIO_INFO(ctypes.Structure):
-	_fields_ = [('name', ctypes.c_char * 32),#char name[32];// driver name
-				('version', ctypes.c_ulong),#DWORD version;// driver version
-				('inputs', ctypes.c_ulong),#DWORD inputs;// number of inputs
-				('outputs', ctypes.c_ulong),#DWORD outputs;// number of outputs
-				('bufmin', ctypes.c_ulong),#DWORD bufmin;// minimum buffer length
-				('bufmax', ctypes.c_ulong),#DWORD bufmax;// maximum buffer length
-				('bufpref', ctypes.c_ulong),#DWORD bufpref;// preferred/default buffer length
-				('bufgran', ctypes.c_int)#int bufgran;// buffer length granularity
-				]
+    _fields_ = [('name', ctypes.c_char * 32),#char name[32];// driver name
+                ('version', ctypes.c_ulong),#DWORD version;// driver version
+                ('inputs', ctypes.c_ulong),#DWORD inputs;// number of inputs
+                ('outputs', ctypes.c_ulong),#DWORD outputs;// number of outputs
+                ('bufmin', ctypes.c_ulong),#DWORD bufmin;// minimum buffer length
+                ('bufmax', ctypes.c_ulong),#DWORD bufmax;// maximum buffer length
+                ('bufpref', ctypes.c_ulong),#DWORD bufpref;// preferred/default buffer length
+                ('bufgran', ctypes.c_int)#int bufgran;// buffer length granularity
+                ]
 
 class BASS_ASIO_CHANNELINFO(ctypes.Structure):
-	_fields_ = [('group', ctypes.c_ulong),#DWORD group;
-				('format', ctypes.c_ulong),#DWORD format;// sample format (BASS_ASIO_FORMAT_xxx)
-				('name', ctypes.c_char * 32)#char name[32];// channel name
-				]
+    _fields_ = [('group', ctypes.c_ulong),#DWORD group;
+                ('format', ctypes.c_ulong),#DWORD format;// sample format (BASS_ASIO_FORMAT_xxx)
+                ('name', ctypes.c_char * 32)#char name[32];// channel name
+                ]
 
 # sample formats
 BASS_ASIO_FORMAT_16BIT = 16# 16-bit integer
@@ -101,9 +101,8 @@ BASS_ASIO_ACTIVE_DISABLED = 0
 BASS_ASIO_ACTIVE_ENABLED = 1
 BASS_ASIO_ACTIVE_PAUSED = 2
 
-
 #typedef DWORD (CALLBACK ASIOPROC)(BOOL input, DWORD channel, void *buffer, DWORD length, void *user);
-ASIOPROC = func_type(ctypes.c_ulong, ctypes.c_byte, ctypes.c_ulong, ctypes.c_void_p, ctypes.c_ulong, ctypes.c_void_p) 
+ASIOPROC = func_type(ctypes.c_ulong, ctypes.c_byte, ctypes.c_ulong, ctypes.c_void_p, ctypes.c_ulong, ctypes.c_void_p)
 # ASIO channel callback function.
 #input  : Input? else output
 #channel: Channel number
@@ -113,7 +112,7 @@ ASIOPROC = func_type(ctypes.c_ulong, ctypes.c_byte, ctypes.c_ulong, ctypes.c_voi
 #RETURN : The number of bytes written (ignored with input channels)
 
 #typedef void (CALLBACK ASIONOTIFYPROC)(DWORD notify, void *user);
-ASIONOTIFYPROC = func_type(None, ctypes.c_ulong, ctypes.c_void_p) 
+ASIONOTIFYPROC = func_type(None, ctypes.c_ulong, ctypes.c_void_p)
 #Driver notification callback function.
 #notify : The notification (BASS_ASIO_NOTIFY_xxx)
 #user   : The 'user' parameter given when calling BASS_ASIO_SetNotify
@@ -189,10 +188,10 @@ BASS_ASIO_ChannelGetVolume = func_type(ctypes.c_float, ctypes.c_byte, ctypes.c_i
 BASS_ASIO_ChannelGetLevel = func_type(ctypes.c_float, ctypes.c_byte, ctypes.c_ulong)(('BASS_ASIO_ChannelGetLevel', bassasio_module))
 
 if __name__ == "__main__":
-	print('BASSASIO implemented Version %X' % BASSASIOVERSION)
-	print('BASSASIO real Version %X' % BASS_ASIO_GetVersion())
-	if not BASS_ASIO_Init(0):
-		print('BASS_ASIO_Init error %s' % get_error_description(BASS_ASIO_ErrorGetCode()))
-	else:
-		if not BASS_ASIO_Free():
-			print('BASS_ASIO_Free error %s' % get_error_description(BASS_ASIO_ErrorGetCode()))
+    print('BASSASIO implemented Version %X' % BASSASIOVERSION)
+    print('BASSASIO real Version %X' % BASS_ASIO_GetVersion())
+    if not BASS_ASIO_Init(0):
+        print('BASS_ASIO_Init error %s' % get_error_description(BASS_ASIO_ErrorGetCode()))
+    else:
+        if not BASS_ASIO_Free():
+            print('BASS_ASIO_Free error %s' % get_error_description(BASS_ASIO_ErrorGetCode()))

@@ -22,12 +22,11 @@ DOWNLOADPROC = pybass.DOWNLOADPROC
 BASS_FILEPROCS = pybass.BASS_FILEPROCS
 
 if platform.system().lower() == 'windows':
-	bassmidi_module = ctypes.WinDLL('bassmidi')
-	func_type = ctypes.WINFUNCTYPE
+    bassmidi_module = ctypes.WinDLL('bassmidi')
+    func_type = ctypes.WINFUNCTYPE
 else:
-	bassmidi_module = ctypes.CDLL('bassmidi')
-	func_type = ctypes.CFUNCTYPE
-
+    bassmidi_module = ctypes.CDLL('bassmidi')
+    func_type = ctypes.CFUNCTYPE
 
 # Additional BASS_SetConfig options
 BASS_CONFIG_MIDI_COMPACT = 0x10400
@@ -52,26 +51,26 @@ BASS_MIDI_NOFX = 0x2000
 BASS_MIDI_DECAYSEEK = 0x4000
 
 class BASS_MIDI_FONT(ctypes.Structure):
-	_fields_ = [('font', HSOUNDFONT),#HSOUNDFONT font; // soundfont
-				('preset', ctypes.c_int),#int preset; // preset number (-1=all)
-				('bank', ctypes.c_int)#int bank;
-				]
+    _fields_ = [('font', HSOUNDFONT),#HSOUNDFONT font; // soundfont
+                ('preset', ctypes.c_int),#int preset; // preset number (-1=all)
+                ('bank', ctypes.c_int)#int bank;
+                ]
 
 class BASS_MIDI_FONTINFO(ctypes.Structure):
-	_fields_ = [('name', ctypes.c_char_p),#const char *name;
-				('copyright', ctypes.c_char_p),#const char *copyright;
-				('comment', ctypes.c_char_p),#const char *comment;
-				('presets', ctypes.c_ulong),#DWORD presets; // number of presets/instruments
-				('samsize', ctypes.c_ulong),#DWORD samsize; // total size (in bytes) of the sample data
-				('samload', ctypes.c_ulong),#DWORD samload; // amount of sample data currently loaded
-				('samtype', ctypes.c_ulong)#DWORD samtype; // sample format (CTYPE) if packed
-				]
+    _fields_ = [('name', ctypes.c_char_p),#const char *name;
+                ('copyright', ctypes.c_char_p),#const char *copyright;
+                ('comment', ctypes.c_char_p),#const char *comment;
+                ('presets', ctypes.c_ulong),#DWORD presets; // number of presets/instruments
+                ('samsize', ctypes.c_ulong),#DWORD samsize; // total size (in bytes) of the sample data
+                ('samload', ctypes.c_ulong),#DWORD samload; // amount of sample data currently loaded
+                ('samtype', ctypes.c_ulong)#DWORD samtype; // sample format (CTYPE) if packed
+                ]
 
 class BASS_MIDI_MARK(ctypes.Structure):
-	_fields_ = [('track', ctypes.c_ulong),#DWORD track; // track containing marker
-				('pos', ctypes.c_ulong),#DWORD pos; // marker position (bytes)
-				('text', ctypes.c_char_p)#const char *text; // marker text
-				]
+    _fields_ = [('track', ctypes.c_ulong),#DWORD track; // track containing marker
+                ('pos', ctypes.c_ulong),#DWORD pos; // marker position (bytes)
+                ('text', ctypes.c_char_p)#const char *text; // marker text
+                ]
 
 # Marker types
 BASS_MIDI_MARK_MARKER = 0 # marker events
@@ -135,12 +134,12 @@ MIDI_EVENT_MIXLEVEL = 0x10000
 MIDI_EVENT_TRANSPOSE = 0x10001
 
 class BASS_MIDI_EVENT(ctypes.Structure):
-	_fields_ = [('event', ctypes.c_ulong),#DWORD event; // MIDI_EVENT_xxx
-				('param', ctypes.c_ulong),#DWORD param;
-				('chan', ctypes.c_ulong),#DWORD chan;
-				('tick', ctypes.c_ulong),#DWORD tick; // event position (ticks)
-				('pos', ctypes.c_ulong)#DWORD pos; // event position (bytes)
-				]
+    _fields_ = [('event', ctypes.c_ulong),#DWORD event; // MIDI_EVENT_xxx
+                ('param', ctypes.c_ulong),#DWORD param;
+                ('chan', ctypes.c_ulong),#DWORD chan;
+                ('tick', ctypes.c_ulong),#DWORD tick; // event position (ticks)
+                ('pos', ctypes.c_ulong)#DWORD pos; // event position (bytes)
+                ]
 
 # BASS_CHANNELINFO type
 BASS_CTYPE_STREAM_MIDI = 0x10d00
@@ -201,22 +200,21 @@ BASS_MIDI_FontSetVolume = func_type(ctypes.c_byte, HSOUNDFONT, ctypes.c_float)((
 #float BASSMIDIDEF(BASS_MIDI_FontGetVolume)(HSOUNDFONT handle);
 BASS_MIDI_FontGetVolume = func_type(ctypes.c_float, HSOUNDFONT)(('BASS_MIDI_FontGetVolume', bassmidi_module))
 
-
 if __name__ == "__main__":
-	if not pybass.BASS_Init(-1, 44100, 0, 0, 0):
-		print('BASS_Init error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
-	else:
-		font = BASS_MIDI_FontInit(b'CT4MGM.SF2', 0)
-		if font == 0:
-			print('BASS_MIDI_FontInit error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
-		else:
-			font_info = BASS_MIDI_FONTINFO()
-			if BASS_MIDI_FontGetInfo(font, font_info):
-				print('============== SOUNDFONT Information ==============')
-				print("name: %s\nloaded: %d / %d" % (font_info.name, font_info.samload, font_info.samsize))
-			handle = BASS_MIDI_StreamCreateFile(False, b'test.mid', 0, 0, 0, 44100)
-			pybass.play_handle(handle, False)
-			if BASS_MIDI_FontFree(font):
-				print('BASS_MIDI_FontFree error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
-		if not pybass.BASS_Free():
-			print('BASS_Free error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+    if not pybass.BASS_Init(-1, 44100, 0, 0, 0):
+        print('BASS_Init error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+    else:
+        font = BASS_MIDI_FontInit(b'CT4MGM.SF2', 0)
+        if font == 0:
+            print('BASS_MIDI_FontInit error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+        else:
+            font_info = BASS_MIDI_FONTINFO()
+            if BASS_MIDI_FontGetInfo(font, font_info):
+                print('============== SOUNDFONT Information ==============')
+                print("name: %s\nloaded: %d / %d" % (font_info.name, font_info.samload, font_info.samsize))
+            handle = BASS_MIDI_StreamCreateFile(False, b'test.mid', 0, 0, 0, 44100)
+            pybass.play_handle(handle, False)
+            if BASS_MIDI_FontFree(font):
+                print('BASS_MIDI_FontFree error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
+        if not pybass.BASS_Free():
+            print('BASS_Free error %s' % pybass.get_error_description(pybass.BASS_ErrorGetCode()))
