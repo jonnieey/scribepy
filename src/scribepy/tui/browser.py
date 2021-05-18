@@ -4,7 +4,7 @@ from pathlib import Path
 from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
 from asciimatics.scene import Scene
-from asciimatics.widgets import Frame, Layout, FileBrowser, Widget, Label, Divider
+from asciimatics.widgets import Frame, Layout, FileBrowser, Widget, Label, Divider, PopUpDialog
 from asciimatics.exceptions import StopApplication, NextScene
 from player import Player
 
@@ -29,13 +29,17 @@ class BrowserFrame(Frame):
         self.fix()
 
     def _play(self):
-        file = self.browser.value
-        if self.player.create_file_stream(file) != False:
-            self.player.play()
+        stream = self.connector.playerPlay()
+        if stream is None:
             raise NextScene("Progress Bar")
         else:
-            # Show popup with error
-            pass
+            self._scene.add_effect(
+                PopUpDialog(self._screen, f"{stream}", ["OK"], has_shadow=True, on_close=self._quit_on_ok)
+            )
+    @staticmethod
+    def _quit_on_ok(selected):
+        if selected == 0:
+            raise NextScene("Scribepy File Browser")
 
     def process_event(self, event):
         if isinstance(event, KeyboardEvent):
@@ -50,4 +54,7 @@ class BrowserFrame(Frame):
 
     def setPlayer(self, p):
         self.player = p
+
+    def setConnector(self, c):
+        self.connector = c
 

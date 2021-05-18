@@ -1,6 +1,5 @@
 from pynput import keyboard
 
-
 class Connector:
     """
     A class to interact with the pynput module.
@@ -70,3 +69,28 @@ class Connector:
         """
         self.player = player
 
+    def setBrowser(self, browser):
+        """
+        Set connector attribute browser.
+
+        Arguments:
+            browser: Browser instance
+
+        Returns:
+            None.
+        """
+        self.browser = browser
+
+    def playerPlay(self):
+        """
+        Play connector channel stream.
+
+        Returns:
+            None if successfull, Error message if fails.
+        """
+        stream = self.player.create_file_stream(self.browser.browser.value)
+        if stream is None:
+            self.player.play()
+            return None
+        else:
+            return stream['error']

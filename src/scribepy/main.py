@@ -18,8 +18,10 @@ def init(screen, old_scene):
     mainwindow = MainWindowFrame(screen)
     browser = BrowserFrame(screen)
     browser.setPlayer(player)
+    browser.setConnector(connector)
     progressbar = ProgressBar(screen)
     progressbar.setPlayer(player)
+    connector.setBrowser(browser)
     connector.run()
 
     scenes = []
@@ -35,5 +37,3 @@ while True:
         sys.exit(0)
     except ResizeScreenError as e:
         last_scene = e.scene
-
-

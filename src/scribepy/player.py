@@ -101,7 +101,7 @@ class Player:
             # Log error.
             # Show popup screen to show error.
             self.destruct()
-            return {"error": f"*{f.suffix} files are not supported"}
+            return {"error": f"{f.suffix} files are not supported"}
 
     def destruct(self):
         """
