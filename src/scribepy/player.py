@@ -4,12 +4,12 @@ from pathlib import Path
 
 from magic import from_file
 
-from pybass.pybass import *
-from pybass.pybass_aac import BASS_AAC_StreamCreateFile, BASS_MP4_StreamCreateFile
-from pybass.pybassflac import BASS_FLAC_StreamCreateFile
-from pybass.pybass_tta import BASS_TTA_StreamCreateFile
-from pybass.pybass_alac import BASS_ALAC_StreamCreateFile
-from pybass.pybass_ac3 import BASS_AC3_StreamCreateFile
+from scribepy.pybass.pybass import *
+from scribepy.pybass.pybass_aac import BASS_AAC_StreamCreateFile, BASS_MP4_StreamCreateFile
+from scribepy.pybass.pybassflac import BASS_FLAC_StreamCreateFile
+from scribepy.pybass.pybass_tta import BASS_TTA_StreamCreateFile
+from scribepy.pybass.pybass_alac import BASS_ALAC_StreamCreateFile
+from scribepy.pybass.pybass_ac3 import BASS_AC3_StreamCreateFile
 
 player_module = Path(__file__).parent
 fx_module = ctypes.CDLL(f"{player_module}/BASS_modules/libbass_fx.so")
@@ -124,33 +124,33 @@ class Player:
             restart: Whether to restart playback from beginning.
 
         Returns:
-            None
+            True if successful else False.
         """
         self.isPlaying = 1
         self.isPaused = 0
-        BASS_ChannelPlay(self.stream, restart)
+        return BASS_ChannelPlay(self.stream, restart)
 
     def pause(self):
         """
         Pause the stream.
 
         Returns:
-            None.
+            True if successful else False.
         """
         self.isPaused = 1
         self.isPlaying = 1
-        BASS_ChannelPause(self.handle)
+        return BASS_ChannelPause(self.handle)
 
     def stop(self):
         """
         Stop the stream.
 
         Returns:
-            None.
+            True if successful else False.
         """
         self.isPlaying = 0
         self.isPaused = 0
-        BASS_ChannelStop(self.handle)
+        return BASS_ChannelStop(self.handle)
 
     @property
     def length(self):
@@ -210,8 +210,7 @@ class Player:
         Returns:
             Position of stream in bytes.
         """
-        buf = BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE)
-        return buf
+        return BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE)
 
     @property
     def remaining(self):
@@ -258,9 +257,9 @@ class Player:
             pos: Position to set to (using bytes as units).
 
         Returns:
-            None
+            True if successful else False.
         """
-        pos = BASS_ChannelSetPosition(self.handle,  pos, BASS_POS_BYTE)
+        return BASS_ChannelSetPosition(self.handle,  pos, BASS_POS_BYTE)
 
     def move_to_position_seconds(self, pos):
         """
@@ -270,11 +269,11 @@ class Player:
             pos: Position to set to (using seconds as units).
 
         Returns:
-            None
+            True if successful else False.
         """
 
         bytes = BASS_ChannelSeconds2Bytes(self.handle, pos)
-        pos = BASS_ChannelSetPosition(self.handle,  bytes, BASS_POS_BYTE)
+        return BASS_ChannelSetPosition(self.handle,  bytes, BASS_POS_BYTE)
 
     def seek_by_bytes(self, s):
         """
@@ -300,7 +299,7 @@ class Player:
             None.
 
         """
-        return self.move_to_position_seconds(self.position + s )
+        self.move_to_position_seconds(self.position + s )
 
     def change_tempo(self, s):
         """
@@ -310,20 +309,20 @@ class Player:
             s: Add tempo by
 
         Returns:
-            None.
+            True if successful else False.
         """
         self.tempo += s
-        BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+        return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
 
     def restore_tempo(self):
         """
         Restore tempo of stream.
 
         Returns:
-            None.
+            True if successful else False.
         """
         self.tempo = 0
-        BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+        return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
 
     @property
     def volume(self):
@@ -343,6 +342,6 @@ class Player:
             volume: The volume level to set to.
 
         Returns:
-            None.
+            True if successful else False.
         """
-        BASS_SetVolume(volume)
+        return BASS_SetVolume(volume)

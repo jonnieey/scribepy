@@ -1,3 +1,5 @@
+import sys
+
 from asciimatics.exceptions import ResizeScreenError
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
@@ -8,7 +10,6 @@ from tui.progressbar import ProgressBar
 from connector import Connector
 
 from player import Player
-import sys
 
 player = Player()
 connector = Connector()

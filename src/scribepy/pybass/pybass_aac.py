@@ -11,8 +11,8 @@ BASS_AAC - extension to the BASS audio library that enables the playback
 of Advanced Audio Coding and MPEG-4 streams (http://www.maresweb.de).
 '''
 
-import sys, ctypes, platform, pybass
-from pybass import pybass
+import sys, ctypes, platform
+from scribepy.pybass import pybass
 from pathlib import Path
 
 pybass_module = Path(__file__).parent

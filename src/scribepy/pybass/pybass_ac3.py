@@ -12,7 +12,7 @@ of Dolby Digital AC-3 streams (http://www.maresweb.de).
 '''
 
 import sys, ctypes, platform
-from pybass import pybass
+from scribepy.pybass import pybass
 from pathlib import Path
 
 pybass_module = Path(__file__).parent
