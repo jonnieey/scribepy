@@ -1,11 +1,12 @@
-import sys, os
+import sys
 from pathlib import Path
 
 from asciimatics.event import KeyboardEvent
 from asciimatics.screen import Screen
 from asciimatics.scene import Scene
-from asciimatics.widgets import Frame, Layout, FileBrowser, Widget, Label, Divider, PopUpDialog
+from asciimatics.widgets import Frame, Layout, Widget, Label, Divider, PopUpDialog
 from asciimatics.exceptions import StopApplication, NextScene
+from scribepy.tui.utils.widgets import CustomFileBrowser
 from player import Player
 
 class BrowserFrame(Frame):
@@ -16,7 +17,7 @@ class BrowserFrame(Frame):
         layout = Layout([1], fill_frame=True)
         self.add_layout(layout)
 
-        self.browser = FileBrowser(Widget.FILL_FRAME,
+        self.browser = CustomFileBrowser(Widget.FILL_FRAME,
                                  Path.home(),
                                  name="Scribepy File Browser",
                                  on_select=self._play,)
@@ -31,6 +32,7 @@ class BrowserFrame(Frame):
     def _play(self):
         stream = self.connector.player_play()
         if stream is None:
+            self.connector.run()
             raise NextScene("Progress Bar")
         else:
             self._scene.add_effect(
@@ -46,6 +48,9 @@ class BrowserFrame(Frame):
         if isinstance(event, KeyboardEvent):
             if event.key_code in [ord("q"), ord("Q")]:
                 raise NextScene("Main Window")
+            if event.key_code in [ord("h")]:
+                # self.browser._populate_list(os.path.abspath(os.path.join(self.browser._root, "..")))
+                self.browser._populate_list(Path(self.browser._root).parent.absolute())
 
         return Frame.process_event(self, event)
 
