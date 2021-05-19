@@ -28,7 +28,7 @@ class ProgressBar(Print):
 
         if isinstance(event, KeyboardEvent):
             if event.key_code in [ord("q"), ord("Q"), ord("s")]:
-                self.connector.player.stop()
+                self.connector.player.destruct()
                 raise NextScene("Scribepy File Browser")
             elif event.key_code in [ord(" "), ord("p")]:
                 self.connector.player.pause_play_toggle

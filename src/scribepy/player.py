@@ -88,20 +88,22 @@ class Player:
         Returns:
             None if successful or error dictionary if unsuccessful.
         """
-        f = Path(file)
         # stream = BASS_StreamCreateFile(False, bytes(file), 0, 0, BASS_STREAM_DECODE)
 
-        file_extension = from_file(str(f), mime=True)
         try:
+            f = Path(file)
+            file_extension = from_file(str(f), mime=True)
             module = get_module_to_use(file_extension)
             stream = module(False, bytes(f), 0, 0, BASS_STREAM_DECODE or BASS_UNICODE)
             # stream = BASS_AAC_StreamCreateFile(False, bytes(file), 0, 0, 0)
             self.stream = BASS_FX_TempoCreate(stream, BASS_FX_FREESOURCE)
         except KeyError as error:
             # Log error.
-            # Show popup screen to show error.
             self.destruct()
-            return {"error": f"{f.suffix} files are not supported"}
+            return {"error": f"{Path(f).suffix} files are not supported"}
+
+        except IsADirectoryError as error:
+            return {"error": f"{Path(f)} is a directory"}
 
     def destruct(self):
         """
@@ -128,7 +130,11 @@ class Player:
         """
         self.isPlaying = 1
         self.isPaused = 0
-        return BASS_ChannelPlay(self.stream, restart)
+        try:
+            return BASS_ChannelPlay(self.stream, restart)
+        except Exception as error:
+            #Log errors
+            return False
 
     def pause(self):
         """
@@ -139,7 +145,11 @@ class Player:
         """
         self.isPaused = 1
         self.isPlaying = 1
-        return BASS_ChannelPause(self.handle)
+        try:
+            return BASS_ChannelPause(self.handle)
+        except Exception as error:
+            #Log errors
+            return False
 
     def stop(self):
         """
@@ -150,7 +160,11 @@ class Player:
         """
         self.isPlaying = 0
         self.isPaused = 0
-        return BASS_ChannelStop(self.handle)
+        try:
+            return BASS_ChannelStop(self.handle)
+        except Exception as error:
+            #Log errors
+            return False
 
     @property
     def length(self):
@@ -185,9 +199,12 @@ class Player:
         Returns:
             Position of stream.
         """
-        buf = BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE)
-        sbuf = BASS_ChannelBytes2Seconds(self.handle, buf)
-        return sbuf
+        try:
+            buf = BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE)
+            sbuf = BASS_ChannelBytes2Seconds(self.handle, buf)
+            return sbuf
+        except Exception as error:
+            return False
 
     @property
     def position_time(self):
@@ -259,7 +276,11 @@ class Player:
         Returns:
             True if successful else False.
         """
-        return BASS_ChannelSetPosition(self.handle,  pos, BASS_POS_BYTE)
+        try:
+            return BASS_ChannelSetPosition(self.handle,  pos, BASS_POS_BYTE)
+        except Exception as error:
+            #Log errors
+            return False
 
     def move_to_position_seconds(self, pos):
         """
@@ -272,8 +293,12 @@ class Player:
             True if successful else False.
         """
 
-        bytes = BASS_ChannelSeconds2Bytes(self.handle, pos)
-        return BASS_ChannelSetPosition(self.handle,  bytes, BASS_POS_BYTE)
+        try:
+            bytes = BASS_ChannelSeconds2Bytes(self.handle, pos)
+            return BASS_ChannelSetPosition(self.handle,  bytes, BASS_POS_BYTE)
+        except Exception as error:
+            #Log error
+            return False
 
     def seek_by_bytes(self, s):
         """
@@ -312,7 +337,11 @@ class Player:
             True if successful else False.
         """
         self.tempo += s
-        return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+        try:
+            return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+        except Exception as error:
+            #Log error
+            return False
 
     def restore_tempo(self):
         """
@@ -322,7 +351,11 @@ class Player:
             True if successful else False.
         """
         self.tempo = 0
-        return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+        try:
+            return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+        except Exception as error:
+            #Log error
+            return False
 
     @property
     def volume(self):

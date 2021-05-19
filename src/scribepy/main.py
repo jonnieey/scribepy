@@ -20,12 +20,10 @@ def init(screen, old_scene):
 
     browser = BrowserFrame(screen)
     browser.set_connector(connector)
+    connector.set_browser(browser)
 
     progressbar = ProgressBar(screen)
     progressbar.set_connector(connector)
-
-    connector.set_browser(browser)
-    connector.run()
 
     scenes = []
     scenes.append(Scene([mainwindow], -1, name="Main Window"))
