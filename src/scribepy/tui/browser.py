@@ -7,7 +7,7 @@ from asciimatics.scene import Scene
 from asciimatics.widgets import Frame, Layout, Widget, Label, Divider, PopUpDialog
 from asciimatics.exceptions import StopApplication, NextScene
 from scribepy.tui.utils.widgets import CustomFileBrowser
-from player import Player
+from scribepy.player import Player
 
 class BrowserFrame(Frame):
     def __init__(self, screen):

@@ -13,6 +13,9 @@ requires-python = ">=3.9"
 dynamic = ["classifiers"]
 license = {file = "LICENSE"}
 
+[tool.pdm.scripts]
+scribepy = {call = "scribepy.main:main"}
+
 [project.urls]
 homepage = ""
 

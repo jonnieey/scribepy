@@ -4,12 +4,12 @@ from asciimatics.exceptions import ResizeScreenError
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 
-from tui.browser import BrowserFrame
-from tui.mainwindow import MainWindowFrame
-from tui.progressbar import ProgressBar
-from connector import Connector
+from scribepy.tui.browser import BrowserFrame
+from scribepy.tui.mainwindow import MainWindowFrame
+from scribepy.tui.progressbar import ProgressBar
+from scribepy.connector import Connector
 
-from player import Player
+from scribepy.player import Player
 
 player = Player()
 connector = Connector()
