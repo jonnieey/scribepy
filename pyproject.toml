@@ -14,7 +14,7 @@ dynamic = ["classifiers"]
 license = {file = "LICENSE"}
 
 [tool.pdm.scripts]
-scribepy = {call = "scribepy.main:main"}
+scribepy = {call = "scribepy.cli:main"}
 
 [project.urls]
 homepage = ""

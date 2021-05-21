@@ -30,7 +30,7 @@ class BrowserFrame(Frame):
         self.fix()
 
     def _play(self):
-        stream = self.connector.player_play()
+        stream = self.connector.player_play(self.browser.value)
         if stream is None:
             self.connector.run()
             raise NextScene("Progress Bar")

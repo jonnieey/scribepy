@@ -81,15 +81,18 @@ class Connector:
         """
         self.browser = browser
 
-    def player_play(self):
+    def player_play(self, file):
         """
         Play connector channel stream.
 
+        Arguments:
+            file: File to play.
         Returns:
             None if successfull, Error message if fails.
         """
-        stream = self.player.create_file_stream(self.browser.browser.value)
+        stream = self.player.create_file_stream(file)
         if stream is None:
+            self.run()
             self.player.play()
             return None
         else:
