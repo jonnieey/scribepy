@@ -1,6 +1,7 @@
 import sys
 import time
 from pathlib import Path
+from loguru import logger
 
 from magic import from_file
 
@@ -50,8 +51,10 @@ class Player:
 
     def __init__(self):
 
+        logger.debug("Try to initialize BASS")
         if not BASS_Init(-1, 44100, 0, 0, 0):
-            #log exceptions
+            logger.exception(f"BASS INITIALIZATION ERROR { get_error_description(BASS_ErrorGetCode()) }")
+
             print("BASS INITIALIZATION ERROR", get_error_description(BASS_ErrorGetCode()))
             sys.exit(0)
 
@@ -90,6 +93,7 @@ class Player:
         """
         # stream = BASS_StreamCreateFile(False, bytes(file), 0, 0, BASS_STREAM_DECODE)
 
+        logger.debug("Try to create BASS stream from file")
         try:
             f = Path(file)
             file_extension = from_file(str(f), mime=True)
@@ -97,12 +101,14 @@ class Player:
             stream = module(False, bytes(f), 0, 0, BASS_STREAM_DECODE or BASS_UNICODE)
             # stream = BASS_AAC_StreamCreateFile(False, bytes(file), 0, 0, 0)
             self.stream = BASS_FX_TempoCreate(stream, BASS_FX_FREESOURCE)
+            logger.success(f"Created stream from {f}")
         except KeyError as error:
-            # Log error.
+            logger.exception(error)
             self.destruct()
             return {"error": f"{Path(f).suffix} files are not supported"}
 
         except IsADirectoryError as error:
+            logger.exception(error)
             return {"error": f"{Path(f)} is a directory"}
 
     def destruct(self):
@@ -130,10 +136,11 @@ class Player:
         """
         self.isPlaying = 1
         self.isPaused = 0
+        logger.debug("Play stream")
         try:
             return BASS_ChannelPlay(self.stream, restart)
         except Exception as error:
-            #Log errors
+            logger.exception(error)
             return False
 
     def pause(self):
@@ -145,10 +152,12 @@ class Player:
         """
         self.isPaused = 1
         self.isPlaying = 1
+        logger.debug("Pause Stream")
         try:
             return BASS_ChannelPause(self.handle)
         except Exception as error:
             #Log errors
+            logger.exception(error)
             return False
 
     def stop(self):
@@ -160,10 +169,11 @@ class Player:
         """
         self.isPlaying = 0
         self.isPaused = 0
+        logger.debug("Stop Stream")
         try:
             return BASS_ChannelStop(self.handle)
         except Exception as error:
-            #Log errors
+            logger.exception(error)
             return False
 
     @property
@@ -199,11 +209,13 @@ class Player:
         Returns:
             Position of stream.
         """
+        logger.debug("Get position of stream")
         try:
             buf = BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE)
             sbuf = BASS_ChannelBytes2Seconds(self.handle, buf)
             return sbuf
         except Exception as error:
+            logger.exception(error)
             return False
 
     @property
@@ -276,10 +288,11 @@ class Player:
         Returns:
             True if successful else False.
         """
+        logger.debug("Move to position 'pos' in stream (using bytes)")
         try:
             return BASS_ChannelSetPosition(self.handle,  pos, BASS_POS_BYTE)
         except Exception as error:
-            #Log errors
+            logger.exception(error)
             return False
 
     def move_to_position_seconds(self, pos):
@@ -292,12 +305,12 @@ class Player:
         Returns:
             True if successful else False.
         """
-
+        logger.debug("Move to position 'pos' in stream (using seconds)")
         try:
             bytes = BASS_ChannelSeconds2Bytes(self.handle, pos)
             return BASS_ChannelSetPosition(self.handle,  bytes, BASS_POS_BYTE)
         except Exception as error:
-            #Log error
+            logger.exception(error)
             return False
 
     def seek_by_bytes(self, s):
@@ -336,11 +349,14 @@ class Player:
         Returns:
             True if successful else False.
         """
+        logger.debug("Change stream tempo/speed")
+
         self.tempo += s
         try:
             return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
         except Exception as error:
             #Log error
+            logger.exception(error)
             return False
 
     def restore_tempo(self):
@@ -350,11 +366,12 @@ class Player:
         Returns:
             True if successful else False.
         """
+        logger.debug("Restore original stream tempo")
         self.tempo = 0
         try:
             return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
         except Exception as error:
-            #Log error
+            logger.exception(error)
             return False
 
     @property

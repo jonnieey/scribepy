@@ -1,7 +1,11 @@
 import subprocess, sys
 import argparse
+from pathlib import Path
 from time import sleep
+
 import pyfiglet
+from loguru import logger
+from pynput import keyboard
 
 from asciimatics.exceptions import ResizeScreenError
 from asciimatics.scene import Scene
@@ -14,6 +18,8 @@ from scribepy.tui.browser import BrowserFrame
 from scribepy.tui.mainwindow import MainWindowFrame
 from scribepy.tui.progressbar import ProgressBar
 
+from scribepy import custom_logger
+
 def get_parser():
     usage = "scribepy [OPTIONS] [COMMAND] [COMMAND_OPTIONS]"
     description = "Command line audio player for transcription"
@@ -24,7 +30,9 @@ def get_parser():
 
     global_options = parser.add_argument_group(title="Global options")
     global_options.add_argument("-h", "--help", action="help", help=main_help)
+    global_options.add_argument("-L", "--log-level", type=str.upper, help="Log level to use", choices=("TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"), )
 
+    global_options.add_argument("-P", "--log-path", metavar="", help="Log file to use",)
     subparsers = parser.add_subparsers(dest="subcommand", metavar="", title="Commands", prog="scribepy")
 
     def subparser(command, text, **kwargs):
@@ -40,6 +48,13 @@ def get_parser():
     return parser
 
 def play_file(file):
+    keybinds = """
+    F2 - Increase tempo         F3 - Seek -10
+    F4 - Pause                  F5 - Restore tempo
+    F6 - Seek +10               F7 - Seek -2
+    F8 - Play                   F11 - Decrease Tempo
+    """
+
     player = Player()
     connector = Connector()
     connector.set_player(player)
@@ -50,6 +65,8 @@ def play_file(file):
             subprocess.call("clear")
             pyfiglet.print_figlet("SCRIBEPY", 'cyberlarge', justify="center")
             print(file, f"{connector.player.position_time}/{connector.player.length_time}", sep="\t" * 2)
+            print(keybinds)
+            print("\nPress Ctrl-c to exit")
             sleep(1)
         except KeyboardInterrupt as error:
             sys.exit("\nExiting scribepy!!!")
@@ -93,13 +110,25 @@ def main(args=None):
     opts = parser.parse_args(args=args)
     kwargs = opts.__dict__
 
+    log_level = kwargs.pop("log_level")
+    log_path = kwargs.pop("log_path")
+
+    if log_path:
+        log_path = Path(log_path)
+        if log_path.is_dir():
+            log_path = log_path / "scribepy-{time}.log"
+        custom_logger(sink=log_path, level=log_level or "WARNING")
+    elif log_level:
+        custom_logger(sink=sys.stderr, level="WARNING")
+
     subcommand = kwargs.pop("subcommand")
 
     try:
         return commands[subcommand](**kwargs)
     except Exception as error:
-        #Log error
+        logger.exception(error)
         print(error)
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()
