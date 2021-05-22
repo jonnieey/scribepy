@@ -21,6 +21,11 @@ from scribepy.tui.progressbar import ProgressBar
 from scribepy import custom_logger
 
 def get_parser():
+    """
+    Create custom parser
+
+    Returns: parser -> ArgumentParser
+    """
     usage = "scribepy [OPTIONS] [COMMAND] [COMMAND_OPTIONS]"
     description = "Command line audio player for transcription"
     parser = argparse.ArgumentParser(prog="scribepy", usage=usage, description=description, add_help=False,)
@@ -47,8 +52,53 @@ def get_parser():
 
     return parser
 
+def progressBar(player, prefix = 'Progress: ', suffix = 'Complete', decimals = 0, length = 100, fill = '█', printEnd = "\r"):
+    """
+    Command line interface progress bar.
+
+    Arguments:
+        player: Instance of Player.
+        prefix: Prefix to add to the progress bar.
+        suffix: Suffix to add to the progress bar.
+        decimals: Decimal places used on progress bar time.
+        length: Length of bar
+        fill: Character to fill the bar.
+        printEnd: end character (eg '\r\n', '\n')
+
+    Returns:
+        None
+    """
+
+    position = player.position
+    total = player.length
+    # Progress Bar Printing Function
+    def printProgressBar (position):
+        percent = ("{0:." + str(decimals) + "f}").format(100 * (position / int(total)))
+        filledLength = int(length * position // total)
+        bar = fill * filledLength + '-' * (length - filledLength)
+        print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+
+    # Update Progress Bar
+    if position <= total:
+        printProgressBar(position)
+        print()
+        tabs = ' ' * (int(length))
+        print(f"{tabs}{player.position_time}/{player.length_time}")
+    # Print New Line on Complete
+    print()
+
 def play_file(file):
-    keybinds = """
+    """
+    Play file from the command line.
+
+    Arguments:
+        file: File to play.
+
+    Returns:
+        None
+    """
+
+    KEYBINDS = """
     F2 - Rewind (-10)           F3 - Play fast speed
     F4 - Pause                  F5 - Restore tempo
     F6 - Fast Forward (+10)     F7 - Rewind (-2)
@@ -65,17 +115,28 @@ def play_file(file):
         try:
             subprocess.call("clear")
             pyfiglet.print_figlet("SCRIBEPY", 'cyberlarge', justify="center")
+            print("Playing: ")
+            print()
             print(file)
             print()
-            print(f"{connector.player.position_time}/{connector.player.length_time}")
-            print()
-            print(keybinds)
+            progressBar(connector.player)
+            print(KEYBINDS)
             print("\nPress Ctrl-c to exit")
-            sleep(1)
+            sleep(0.1)
         except KeyboardInterrupt as error:
             sys.exit("\nExiting scribepy!!!")
 
 def init(screen, old_scene):
+    """
+    Initialize scenes to play
+
+    Arguments:
+        screen: Screen instance.
+        old_scene: Initial scene.
+
+    Return:
+        None
+    """
     player = Player()
     connector = Connector()
     connector.set_player(player)
