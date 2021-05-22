@@ -49,10 +49,11 @@ def get_parser():
 
 def play_file(file):
     keybinds = """
-    F2 - Increase tempo         F3 - Seek -10
+    F2 - Rewind (-10)           F3 - Play fast speed
     F4 - Pause                  F5 - Restore tempo
-    F6 - Seek +10               F7 - Seek -2
-    F8 - Play                   F11 - Decrease Tempo
+    F6 - Fast Forward (+10)     F7 - Rewind (-2)
+    F8 - Fast Forward (+2)      F9 - Toggle play/pause
+    F11 - Decrease Tempo
     """
 
     player = Player()
@@ -64,7 +65,10 @@ def play_file(file):
         try:
             subprocess.call("clear")
             pyfiglet.print_figlet("SCRIBEPY", 'cyberlarge', justify="center")
-            print(file, f"{connector.player.position_time}/{connector.player.length_time}", sep="\t" * 2)
+            print(file)
+            print()
+            print(f"{connector.player.position_time}/{connector.player.length_time}")
+            print()
             print(keybinds)
             print("\nPress Ctrl-c to exit")
             sleep(1)

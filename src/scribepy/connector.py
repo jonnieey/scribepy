@@ -17,13 +17,14 @@ class Connector:
         """
 
         if key == keyboard.Key.f2:
-            self.player.change_tempo(4)
+            self.player.seek(-10)
 
         if key == keyboard.Key.f3:
-            self.player.seek(-10)
+            self.player.change_tempo(4)
 
         if key == keyboard.Key.f4:
             self.player.pause()
+            self.player.seek(-4)
 
         if key == keyboard.Key.f5:
             self.player.restore_tempo()
@@ -35,14 +36,14 @@ class Connector:
             self.player.seek(-2)
 
         if key == keyboard.Key.f8:
-            self.player.play()
+            self.player.seek(2)
 
         if key == keyboard.Key.f9:
             if not self.player.isPaused:
                 self.player.pause()
-                self.player.seek(-4)
+                self.player.seek(-2)
             else:
-                pass
+                self.player.play()
 
         if key == keyboard.Key.f11:
             self.player.change_tempo(-4)
