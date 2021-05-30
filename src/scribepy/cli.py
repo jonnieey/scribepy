@@ -2,6 +2,7 @@ import subprocess, sys
 import argparse
 from pathlib import Path
 from time import sleep
+import shutil
 
 import pyfiglet
 from loguru import logger
@@ -52,7 +53,7 @@ def get_parser():
 
     return parser
 
-def progressBar(player, prefix = 'Progress: ', suffix = 'Complete', decimals = 0, length = 100, fill = '█', printEnd = "\r"):
+def progressBar(player, prefix = 'Progress: ', suffix = 'Complete', decimals = 0, length = 100, fill = '█', printEnd = "\r", autosize=False):
     """
     Command line interface progress bar.
 
@@ -72,18 +73,26 @@ def progressBar(player, prefix = 'Progress: ', suffix = 'Complete', decimals = 0
     position = player.position
     total = player.length
     # Progress Bar Printing Function
-    def printProgressBar (position):
-        percent = ("{0:." + str(decimals) + "f}").format(100 * (position / int(total)))
+    def printProgressBar (position, length=length):
+        percent = ("{0:." + str(decimals) + "f}").format(100 * (position / total))
+        styling = f"{prefix} |{fill}| {percent}% {suffix}"
+
+        if autosize:
+            cols, _ = shutil.get_terminal_size(fallback=(length, 1))
+            length = cols - len(styling)
+
         filledLength = int(length * position // total)
         bar = fill * filledLength + '-' * (length - filledLength)
-        print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+        # print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+        print(f"\r{styling.replace(fill, bar)}", end ='\r')
+        print()
+        timer = f"{player.position_time}/{player.length_time}"
+        timer_pos = len(timer) + len(bar)
+        print(f"{timer:>{timer_pos}}")
 
     # Update Progress Bar
     if position <= total:
         printProgressBar(position)
-        print()
-        tabs = ' ' * (int(length))
-        print(f"{tabs}{player.position_time}/{player.length_time}")
     # Print New Line on Complete
     print()
 
@@ -114,12 +123,16 @@ def play_file(file):
     while connector.player.position <= connector.player.length:
         try:
             subprocess.call("clear")
-            pyfiglet.print_figlet("SCRIBEPY", 'cyberlarge', justify="center")
+            try:
+                pyfiglet.print_figlet("SCRIBEPY", 'cyberlarge', justify="center")
+            except Exception as error:
+                logger.exception(error)
+                print("                                         SCRIBEPY")
             print("Playing: ")
             print()
-            print(file)
+            print(Path(file).absolute())
             print()
-            progressBar(connector.player)
+            progressBar(connector.player, autosize=True)
             print(KEYBINDS)
             print("\nPress Ctrl-c to exit")
             sleep(0.1)
