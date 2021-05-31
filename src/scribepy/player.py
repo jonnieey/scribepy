@@ -46,9 +46,6 @@ class Player:
     A class to interact with pybass module.
     """
 
-    isPlaying = 0
-    isPaused = 0
-
     def __init__(self):
 
         logger.debug("Try to initialize BASS")
@@ -118,7 +115,9 @@ class Player:
         Returns:
             None.
         """
-        if self.isPlaying or self.isPaused:
+        status = BASS_ChannelIsActive(self.handle)
+
+        if (status == BASS_ACTIVE_PLAYING or status == BASS_ACTIVE_PAUSED):
             self.stop()
             retval = BASS_StreamFree(self.handle)
 
@@ -150,8 +149,6 @@ class Player:
         Returns:
             True if successful else False.
         """
-        self.isPaused = 1
-        self.isPlaying = 1
         logger.debug("Pause Stream")
         try:
             return BASS_ChannelPause(self.handle)
@@ -167,8 +164,6 @@ class Player:
         Returns:
             True if successful else False.
         """
-        self.isPlaying = 0
-        self.isPaused = 0
         logger.debug("Stop Stream")
         try:
             return BASS_ChannelStop(self.handle)
@@ -264,7 +259,6 @@ class Player:
 
         return f"{minutes:02}:{seconds:02}"
 
-    @property
     def pause_play_toggle(self):
         """
         Toggle play/pause
@@ -275,7 +269,7 @@ class Player:
         status = BASS_ChannelIsActive(self.handle)
         if status == BASS_ACTIVE_PAUSED:
             self.play()
-        else:
+        elif status == BASS_ACTIVE_PLAYING:
             self.pause()
 
     def move_to_position_bytes(self, pos):

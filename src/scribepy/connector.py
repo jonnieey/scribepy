@@ -39,11 +39,7 @@ class Connector:
             self.player.seek(2)
 
         if key == keyboard.Key.f9:
-            if not self.player.isPaused:
-                self.player.pause()
-                self.player.seek(-2)
-            else:
-                self.player.play()
+            self.player.play()
 
         if key == keyboard.Key.f11:
             self.player.change_tempo(-4)
