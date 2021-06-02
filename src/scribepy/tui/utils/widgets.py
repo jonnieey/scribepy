@@ -13,6 +13,7 @@ from asciimatics.screen import Screen
 from asciimatics.widgets.widget import Widget
 from asciimatics.widgets.scrollbar import _ScrollBar
 from re import match as re_match
+from re import compile as re_compile
 import os
 import unicodedata
 from asciimatics.widgets.utilities import _enforce_width

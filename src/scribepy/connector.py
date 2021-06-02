@@ -24,7 +24,7 @@ class Connector:
 
         if key == keyboard.Key.f4:
             self.player.pause()
-            self.player.seek(-4)
+            self.player.seek(-2)
 
         if key == keyboard.Key.f5:
             self.player.restore_tempo()

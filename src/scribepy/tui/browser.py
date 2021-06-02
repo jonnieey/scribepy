@@ -9,6 +9,8 @@ from asciimatics.exceptions import StopApplication, NextScene
 from scribepy.tui.utils.widgets import CustomFileBrowser
 from scribepy.player import Player
 
+multimedia_string = r"^.*(aac|flac|m4a|wav|ogg|mp3|mp4|tta|ac3)$"
+
 class BrowserFrame(Frame):
     def __init__(self, screen):
         Frame.__init__(self,
@@ -20,7 +22,8 @@ class BrowserFrame(Frame):
         self.browser = CustomFileBrowser(Widget.FILL_FRAME,
                                  Path.home(),
                                  name="Scribepy File Browser",
-                                 on_select=self._play,)
+                                 on_select=self._play,
+                                 file_filter=multimedia_string,)
 
         layout.add_widget(Label("Scribepy File Browser"))
         layout.add_widget(Divider())

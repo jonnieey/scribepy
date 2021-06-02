@@ -115,13 +115,18 @@ class Player:
         Returns:
             None.
         """
-        status = BASS_ChannelIsActive(self.handle)
+        try:
+            status = BASS_ChannelIsActive(self.handle)
 
-        if (status == BASS_ACTIVE_PLAYING or status == BASS_ACTIVE_PAUSED):
-            self.stop()
-            retval = BASS_StreamFree(self.handle)
+            if (status == BASS_ACTIVE_PLAYING or status == BASS_ACTIVE_PAUSED):
+                self.stop()
+                retval = BASS_StreamFree(self.handle)
 
-        self.stream = None
+            self.stream = None
+
+        except ctypes.ArgumentError as error:
+            logger.exception(error)
+            self.stream = None
 
     def play(self, restart=False):
         """
