@@ -21,7 +21,6 @@ from scribepy.tui.progressbar import ProgressBar
 
 from scribepy import custom_logger
 
-
 def get_parser():
     """
     Create custom parser
@@ -85,7 +84,6 @@ def get_parser():
 
     return parser
 
-
 def progressBar(
     player,
     prefix="Progress: ",
@@ -140,7 +138,6 @@ def progressBar(
     # Print New Line on Complete
     print()
 
-
 def play_file(file):
     """
     Play file from the command line.
@@ -153,7 +150,7 @@ def play_file(file):
     """
 
     KEYBINDS = """
-    F2 - Rewind (-10)           F3 - Play fast speed
+    F2 - Rewind (-10)           F3 - Increase tempo
     F4 - Pause                  F5 - Restore tempo
     F6 - Fast Forward (+10)     F7 - Rewind (-2)
     F8 - Fast Forward (+2)      F9 - Toggle play/pause
@@ -186,7 +183,6 @@ def play_file(file):
         except KeyboardInterrupt as error:
             sys.exit("\nExiting scribepy!!!")
 
-
 def init(screen, old_scene):
     """
     Initialize scenes to play
@@ -216,7 +212,6 @@ def init(screen, old_scene):
     scenes.append(Scene([progressbar], -1, clear=False, name="Progress Bar"))
     screen.play(scenes, start_scene=old_scene)
 
-
 def launch_tui(**kwargs):
     last_scene = None
     while True:
@@ -225,7 +220,6 @@ def launch_tui(**kwargs):
             sys.exit(0)
         except ResizeScreenError as e:
             last_scene = e.scene
-
 
 def main(args=None):
     commands = {
@@ -257,7 +251,6 @@ def main(args=None):
         logger.exception(error)
         print(error)
         sys.exit(0)
-
 
 if __name__ == "__main__":
     main()
