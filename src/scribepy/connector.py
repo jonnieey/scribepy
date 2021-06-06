@@ -1,5 +1,6 @@
 from pynput import keyboard
 
+
 class Connector:
     """
     A class to interact with the pynput module.
@@ -51,7 +52,9 @@ class Connector:
         Returns:
             None.
         """
-        listener = keyboard.Listener(on_press=self.on_press,)
+        listener = keyboard.Listener(
+            on_press=self.on_press,
+        )
         listener.start()
 
     def set_player(self, player):
@@ -93,7 +96,7 @@ class Connector:
             self.player.play()
             return None
         else:
-            return stream['error']
+            return stream["error"]
 
     def increase_volume(self):
         """

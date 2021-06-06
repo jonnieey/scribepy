@@ -6,7 +6,10 @@ from loguru import logger
 from magic import from_file
 
 from scribepy.pybass.pybass import *
-from scribepy.pybass.pybass_aac import BASS_AAC_StreamCreateFile, BASS_MP4_StreamCreateFile
+from scribepy.pybass.pybass_aac import (
+    BASS_AAC_StreamCreateFile,
+    BASS_MP4_StreamCreateFile,
+)
 from scribepy.pybass.pybassflac import BASS_FLAC_StreamCreateFile
 from scribepy.pybass.pybass_tta import BASS_TTA_StreamCreateFile
 from scribepy.pybass.pybass_alac import BASS_ALAC_StreamCreateFile
@@ -17,7 +20,10 @@ fx_module = ctypes.CDLL(f"{player_module}/BASS_modules/libbass_fx.so")
 fx_func_type = ctypes.CFUNCTYPE
 BASS_ATTRIB_TEMPO = 0x10000
 BASS_FX_FREESOURCE = 0x10000
-BASS_FX_TempoCreate = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_ulong)(('BASS_FX_TempoCreate', fx_module))
+BASS_FX_TempoCreate = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_ulong)(
+    ("BASS_FX_TempoCreate", fx_module)
+)
+
 
 def get_module_to_use(ext):
     """
@@ -41,6 +47,7 @@ def get_module_to_use(ext):
         "audio/vnd.dolby.dd-raw": BASS_AC3_StreamCreateFile,
     }[ext]
 
+
 class Player:
     """
     A class to interact with pybass module.
@@ -50,9 +57,14 @@ class Player:
 
         logger.debug("Try to initialize BASS")
         if not BASS_Init(-1, 44100, 0, 0, 0):
-            logger.exception(f"BASS INITIALIZATION ERROR { get_error_description(BASS_ErrorGetCode()) }")
+            logger.exception(
+                f"BASS INITIALIZATION ERROR { get_error_description(BASS_ErrorGetCode()) }"
+            )
 
-            print("BASS INITIALIZATION ERROR", get_error_description(BASS_ErrorGetCode()))
+            print(
+                "BASS INITIALIZATION ERROR",
+                get_error_description(BASS_ErrorGetCode()),
+            )
             sys.exit(0)
 
         self.stream = None
@@ -95,7 +107,9 @@ class Player:
             f = Path(file)
             file_extension = from_file(str(f), mime=True)
             module = get_module_to_use(file_extension)
-            stream = module(False, bytes(f), 0, 0, BASS_STREAM_DECODE or BASS_UNICODE)
+            stream = module(
+                False, bytes(f), 0, 0, BASS_STREAM_DECODE or BASS_UNICODE
+            )
             # stream = BASS_AAC_StreamCreateFile(False, bytes(file), 0, 0, 0)
             self.stream = BASS_FX_TempoCreate(stream, BASS_FX_FREESOURCE)
             logger.success(f"Created stream from {f}")
@@ -118,7 +132,7 @@ class Player:
         try:
             status = BASS_ChannelIsActive(self.handle)
 
-            if (status == BASS_ACTIVE_PLAYING or status == BASS_ACTIVE_PAUSED):
+            if status == BASS_ACTIVE_PLAYING or status == BASS_ACTIVE_PAUSED:
                 self.stop()
                 retval = BASS_StreamFree(self.handle)
 
@@ -158,7 +172,7 @@ class Player:
         try:
             return BASS_ChannelPause(self.handle)
         except Exception as error:
-            #Log errors
+            # Log errors
             logger.exception(error)
             return False
 
@@ -209,12 +223,12 @@ class Player:
         Returns:
             Position of stream.
         """
-        logger.debug("Get position of stream")
         try:
             buf = BASS_ChannelGetPosition(self.handle, BASS_POS_BYTE)
             sbuf = BASS_ChannelBytes2Seconds(self.handle, buf)
             return sbuf
         except Exception as error:
+            logger.debug("Get position of stream")
             logger.exception(error)
             return False
 
@@ -289,7 +303,7 @@ class Player:
         """
         logger.debug("Move to position 'pos' in stream (using bytes)")
         try:
-            return BASS_ChannelSetPosition(self.handle,  pos, BASS_POS_BYTE)
+            return BASS_ChannelSetPosition(self.handle, pos, BASS_POS_BYTE)
         except Exception as error:
             logger.exception(error)
             return False
@@ -307,7 +321,7 @@ class Player:
         logger.debug("Move to position 'pos' in stream (using seconds)")
         try:
             bytes = BASS_ChannelSeconds2Bytes(self.handle, pos)
-            return BASS_ChannelSetPosition(self.handle,  bytes, BASS_POS_BYTE)
+            return BASS_ChannelSetPosition(self.handle, bytes, BASS_POS_BYTE)
         except Exception as error:
             logger.exception(error)
             return False
@@ -323,7 +337,7 @@ class Player:
             None.
 
         """
-        self.move_to_position_bytes(self.position_bytes + (s * 124000 ) )
+        self.move_to_position_bytes(self.position_bytes + (s * 124000))
 
     def seek(self, s):
         """
@@ -336,7 +350,7 @@ class Player:
             None.
 
         """
-        self.move_to_position_seconds(self.position + s )
+        self.move_to_position_seconds(self.position + s)
 
     def change_tempo(self, s):
         """
@@ -352,9 +366,11 @@ class Player:
 
         self.tempo += s
         try:
-            return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+            return BASS_ChannelSetAttribute(
+                self.stream, BASS_ATTRIB_TEMPO, self.tempo
+            )
         except Exception as error:
-            #Log error
+            # Log error
             logger.exception(error)
             return False
 
@@ -368,7 +384,9 @@ class Player:
         logger.debug("Restore original stream tempo")
         self.tempo = 0
         try:
-            return BASS_ChannelSetAttribute(self.stream, BASS_ATTRIB_TEMPO, self.tempo)
+            return BASS_ChannelSetAttribute(
+                self.stream, BASS_ATTRIB_TEMPO, self.tempo
+            )
         except Exception as error:
             logger.exception(error)
             return False

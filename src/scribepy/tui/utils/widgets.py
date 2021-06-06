@@ -1,4 +1,3 @@
-
 """This is the baseclass for list box types"""
 from __future__ import division
 from __future__ import absolute_import
@@ -20,16 +19,40 @@ from asciimatics.widgets.utilities import _enforce_width
 from future.moves.itertools import zip_longest
 from asciimatics.utilities import readable_timestamp, readable_mem
 
+
 class _CustomBaseListBox(with_metaclass(ABCMeta, Widget)):
     """
     An Internal class to contain common function between list box types.
     """
 
-    __slots__ = ["_options", "_titles", "_label", "_line", "_start_line", "_required_height", "_on_change",
-                 "_on_select", "_validator", "_search", "_last_search", "_scroll_bar", "_parser"]
+    __slots__ = [
+        "_options",
+        "_titles",
+        "_label",
+        "_line",
+        "_start_line",
+        "_required_height",
+        "_on_change",
+        "_on_select",
+        "_validator",
+        "_search",
+        "_last_search",
+        "_scroll_bar",
+        "_parser",
+    ]
 
-    def __init__(self, height, options, titles=None, label=None, name=None, parser=None,
-                 on_change=None, on_select=None, validator=None):
+    def __init__(
+        self,
+        height,
+        options,
+        titles=None,
+        label=None,
+        name=None,
+        parser=None,
+        on_change=None,
+        on_select=None,
+        validator=None,
+    ):
         """
         :param height: The required number of input lines for this widget.
         :param options: The options for each row in the widget.
@@ -62,24 +85,43 @@ class _CustomBaseListBox(with_metaclass(ABCMeta, Widget)):
 
     def process_event(self, event):
         if isinstance(event, KeyboardEvent):
-            if len(self._options) > 0 and event.key_code in [ord("k"), Screen.KEY_UP]:
+            if len(self._options) > 0 and event.key_code in [
+                ord("k"),
+                Screen.KEY_UP,
+            ]:
                 # Move up one line in text - use value to trigger on_select.
                 self._line = max(0, self._line - 1)
                 self.value = self._options[self._line][1]
-            elif len(self._options) > 0 and event.key_code in [ord("j"), Screen.KEY_DOWN]:
+            elif len(self._options) > 0 and event.key_code in [
+                ord("j"),
+                Screen.KEY_DOWN,
+            ]:
                 # Move down one line in text - use value to trigger on_select.
                 self._line = min(len(self._options) - 1, self._line + 1)
                 self.value = self._options[self._line][1]
-            elif len(self._options) > 0 and event.key_code == Screen.KEY_PAGE_UP:
+            elif (
+                len(self._options) > 0 and event.key_code == Screen.KEY_PAGE_UP
+            ):
                 # Move up one page.
-                self._line = max(0, self._line - self._h + (1 if self._titles else 0))
+                self._line = max(
+                    0, self._line - self._h + (1 if self._titles else 0)
+                )
                 self.value = self._options[self._line][1]
-            elif len(self._options) > 0 and event.key_code == Screen.KEY_PAGE_DOWN:
+            elif (
+                len(self._options) > 0
+                and event.key_code == Screen.KEY_PAGE_DOWN
+            ):
                 # Move down one page.
                 self._line = min(
-                    len(self._options) - 1, self._line + self._h - (1 if self._titles else 0))
+                    len(self._options) - 1,
+                    self._line + self._h - (1 if self._titles else 0),
+                )
                 self.value = self._options[self._line][1]
-            elif event.key_code in [Screen.ctrl("m"), Screen.ctrl("j"), ord("l")]:
+            elif event.key_code in [
+                Screen.ctrl("m"),
+                Screen.ctrl("j"),
+                ord("l"),
+            ]:
                 # Fire select callback.
                 if self._on_select:
                     self._on_select()
@@ -101,9 +143,11 @@ class _CustomBaseListBox(with_metaclass(ABCMeta, Widget)):
             # Mouse event - adjust for scroll bar as needed.
             if event.buttons != 0:
                 # Check for normal widget.
-                if (len(self._options) > 0 and
-                        self.is_mouse_over(event, include_label=False,
-                                           width_modifier=1 if self._scroll_bar else 0)):
+                if len(self._options) > 0 and self.is_mouse_over(
+                    event,
+                    include_label=False,
+                    width_modifier=1 if self._scroll_bar else 0,
+                ):
                     # Figure out selected line
                     new_line = event.y - self._y + self._start_line
                     if self._titles:
@@ -114,7 +158,10 @@ class _CustomBaseListBox(with_metaclass(ABCMeta, Widget)):
                     if new_line >= 0:
                         self._line = new_line
                         self.value = self._options[self._line][1]
-                        if event.buttons & MouseEvent.DOUBLE_CLICK != 0 and self._on_select:
+                        if (
+                            event.buttons & MouseEvent.DOUBLE_CLICK != 0
+                            and self._on_select
+                        ):
                             self._on_select()
                     return None
 
@@ -142,8 +189,14 @@ class _CustomBaseListBox(with_metaclass(ABCMeta, Widget)):
         """
         if self._scroll_bar is None and len(self._options) > height:
             self._scroll_bar = _ScrollBar(
-                self._frame.canvas, self._frame.palette, self._x + width - 1, self._y + dy,
-                height, self._get_pos, self._set_pos)
+                self._frame.canvas,
+                self._frame.palette,
+                self._x + width - 1,
+                self._y + dy,
+                height,
+                self._get_pos,
+                self._set_pos,
+            )
         elif self._scroll_bar is not None and len(self._options) <= height:
             self._scroll_bar = None
 
@@ -219,7 +272,8 @@ class _CustomBaseListBox(with_metaclass(ABCMeta, Widget)):
 
         # Fix up the start line now that we've explicitly set a new value.
         self._start_line = max(
-            0, max(self._line - self._h + 1, min(self._start_line, self._line)))
+            0, max(self._line - self._h + 1, min(self._start_line, self._line))
+        )
 
     def _parse_options(self, options):
         """
@@ -250,6 +304,7 @@ class _CustomBaseListBox(with_metaclass(ABCMeta, Widget)):
         The list of options available for user selection.
         """
 
+
 class CustomMultiColumnListBox(_CustomBaseListBox):
     """
     A MultiColumnListBox is a widget for displaying tabular data.
@@ -257,9 +312,20 @@ class CustomMultiColumnListBox(_CustomBaseListBox):
     It displays a list of related data in columns, from which the user can select a line.
     """
 
-    def __init__(self, height, columns, options, titles=None, label=None,
-                 name=None, add_scroll_bar=False, parser=None, on_change=None,
-                 on_select=None, space_delimiter=' '):
+    def __init__(
+        self,
+        height,
+        columns,
+        options,
+        titles=None,
+        label=None,
+        name=None,
+        add_scroll_bar=False,
+        parser=None,
+        on_change=None,
+        on_select=None,
+        space_delimiter=" ",
+    ):
         """
         :param height: The required number of input lines for this ListBox.
         :param columns: A list of widths and alignments for each column.
@@ -303,8 +369,15 @@ class CustomMultiColumnListBox(_CustomBaseListBox):
         this widget.
         """
         super(CustomMultiColumnListBox, self).__init__(
-            height, options, titles=titles, label=label, name=name, parser=parser,
-            on_change=on_change, on_select=on_select)
+            height,
+            options,
+            titles=titles,
+            label=label,
+            name=name,
+            parser=parser,
+            on_change=on_change,
+            on_select=on_select,
+        )
         self._columns = []
         self._align = []
         self._spacing = []
@@ -316,12 +389,20 @@ class CustomMultiColumnListBox(_CustomBaseListBox):
                 self._align.append("<")
             else:
                 match = re_match(r"([<>^]?)(\d+)([%]?)", column)
-                self._columns.append(float(match.group(2)) / 100
-                                     if match.group(3) else int(match.group(2)))
+                self._columns.append(
+                    float(match.group(2)) / 100
+                    if match.group(3)
+                    else int(match.group(2))
+                )
                 self._align.append(match.group(1) if match.group(1) else "<")
-            if space_delimiter == ' ':
-                self._spacing.append(1 if i > 0 and self._align[i] == "<" and
-                                     self._align[i - 1] == ">" else 0)
+            if space_delimiter == " ":
+                self._spacing.append(
+                    1
+                    if i > 0
+                    and self._align[i] == "<"
+                    and self._align[i - 1] == ">"
+                    else 0
+                )
             else:
                 self._spacing.append(1 if i > 0 else 0)
 
@@ -336,17 +417,37 @@ class CustomMultiColumnListBox(_CustomBaseListBox):
         if isinstance(width, float):
             return int(max_width * width)
         if width == 0:
-            width = (max_width - sum(self._spacing) -
-                     sum([self._get_width(x, max_width) for x in self._columns if x != 0]))
+            width = (
+                max_width
+                - sum(self._spacing)
+                - sum(
+                    [
+                        self._get_width(x, max_width)
+                        for x in self._columns
+                        if x != 0
+                    ]
+                )
+            )
         return width
 
-    def _print_cell(self, space, text, align, width, x, y, foreground, attr, background):
+    def _print_cell(
+        self, space, text, align, width, x, y, foreground, attr, background
+    ):
         # Sort out spacing first.
         if space:
-            self._frame.canvas.print_at(self._space_delimiter * space, x, y, foreground, attr, background)
+            self._frame.canvas.print_at(
+                self._space_delimiter * space,
+                x,
+                y,
+                foreground,
+                attr,
+                background,
+            )
 
         # Now align text, taking into account double space glyphs.
-        paint_text = _enforce_width(text, width, self._frame.canvas.unicode_aware)
+        paint_text = _enforce_width(
+            text, width, self._frame.canvas.unicode_aware
+        )
         text_size = self.string_len(str(paint_text))
         if text_size < width:
             # Default does no alignment or padding.
@@ -361,8 +462,16 @@ class CustomMultiColumnListBox(_CustomBaseListBox):
                 buffer_2 = " " * (width - text_size - start_len)
             paint_text = paint_text.join([buffer_1, buffer_2])
         self._frame.canvas.paint(
-            str(paint_text), x + space, y, foreground, attr, background,
-            colour_map=paint_text.colour_map if hasattr(paint_text, "colour_map") else None)
+            str(paint_text),
+            x + space,
+            y,
+            foreground,
+            attr,
+            background,
+            colour_map=paint_text.colour_map
+            if hasattr(paint_text, "colour_map")
+            else None,
+        )
 
     def update(self, frame_no):
         self._draw_label()
@@ -379,7 +488,10 @@ class CustomMultiColumnListBox(_CustomBaseListBox):
                 " " * width,
                 self._x + self._offset,
                 self._y + i + delta_y,
-                colour, attr, background)
+                colour,
+                attr,
+                background,
+            )
 
         # Allow space for titles if needed.
         if self._titles:
@@ -397,11 +509,20 @@ class CustomMultiColumnListBox(_CustomBaseListBox):
             row_dx = 0
             colour, attr, background = self._frame.palette["title"]
             for i, [title, align, space] in enumerate(
-                    zip(self._titles, self._align, self._spacing)):
+                zip(self._titles, self._align, self._spacing)
+            ):
                 cell_width = self._get_width(self._columns[i], width)
                 self._print_cell(
-                    space, title, align, cell_width, self._x + self._offset + row_dx, self._y,
-                    colour, attr, background)
+                    space,
+                    title,
+                    align,
+                    cell_width,
+                    self._x + self._offset + row_dx,
+                    self._y,
+                    colour,
+                    attr,
+                    background,
+                )
                 row_dx += cell_width + space
 
         # Don't bother with anything else if there are no options to render.
@@ -409,26 +530,40 @@ class CustomMultiColumnListBox(_CustomBaseListBox):
             return
 
         # Render visible portion of the text.
-        self._start_line = max(0, max(self._line - height + 1,
-                                      min(self._start_line, self._line)))
+        self._start_line = max(
+            0, max(self._line - height + 1, min(self._start_line, self._line))
+        )
         for i, [row, _] in enumerate(self._options):
             if self._start_line <= i < self._start_line + height:
-                colour, attr, background = self._pick_colours("field", i == self._line)
+                colour, attr, background = self._pick_colours(
+                    "field", i == self._line
+                )
                 row_dx = 0
                 # Try to handle badly formatted data, where row lists don't
                 # match the expected number of columns.
                 for text, cell_width, align, space in zip_longest(
-                        row, self._columns, self._align, self._spacing, fillvalue=""):
+                    row,
+                    self._columns,
+                    self._align,
+                    self._spacing,
+                    fillvalue="",
+                ):
                     if cell_width == "":
                         break
                     cell_width = self._get_width(cell_width, width)
                     if len(text) > cell_width:
-                        text = text[:cell_width - 3] + "..."
+                        text = text[: cell_width - 3] + "..."
                     self._print_cell(
-                        space, text, align, cell_width,
+                        space,
+                        text,
+                        align,
+                        cell_width,
                         self._x + self._offset + row_dx,
                         self._y + i + delta_y - self._start_line,
-                        colour, attr, background)
+                        colour,
+                        attr,
+                        background,
+                    )
                     row_dx += cell_width + space
 
         # And finally draw any scroll bar.
@@ -473,12 +608,21 @@ class CustomMultiColumnListBox(_CustomBaseListBox):
         self._options = self._parse_options(new_value)
         self.value = self._value
 
+
 class CustomFileBrowser(CustomMultiColumnListBox):
     """
     A FileBrowser is a widget for finding a file on the local disk.
     """
 
-    def __init__(self, height, root, name=None, on_select=None, on_change=None, file_filter=None):
+    def __init__(
+        self,
+        height,
+        root,
+        name=None,
+        on_select=None,
+        on_change=None,
+        file_filter=None,
+    ):
         r"""
         :param height: The desired height for this widget.
         :param root: The starting root directory to display in the widget.
@@ -499,7 +643,8 @@ class CustomFileBrowser(CustomMultiColumnListBox):
             titles=["Filename", "Size", "Last modified"],
             name=name,
             on_select=self._on_selection,
-            on_change=on_change)
+            on_change=on_change,
+        )
 
         # Remember the on_select handler for external notification.  This allows us to wrap the
         # normal on_select notification with a function that will open new sub-directories as
@@ -508,7 +653,9 @@ class CustomFileBrowser(CustomMultiColumnListBox):
         self._root = root
         self._in_update = False
         self._initialized = False
-        self._file_filter = None if file_filter is None else re_compile(file_filter)
+        self._file_filter = (
+            None if file_filter is None else re_compile(file_filter)
+        )
 
     def update(self, frame_no):
         # Defer initial population until we first display the widget in order to avoid race
@@ -555,13 +702,17 @@ class CustomFileBrowser(CustomMultiColumnListBox):
         self._in_update = True
 
         # We need to update the tree view.
-        self._root = os.path.abspath(value if os.path.isdir(value) else os.path.dirname(value))
+        self._root = os.path.abspath(
+            value if os.path.isdir(value) else os.path.dirname(value)
+        )
 
         # The absolute expansion of "/" or "\" is the root of the disk, so is a cross-platform
         # way of spotting when to insert ".." or not.
         tree_view = []
         if len(self._root) > len(os.path.abspath(os.sep)):
-            tree_view.append((["|-+ .."], os.path.abspath(os.path.join(self._root, ".."))))
+            tree_view.append(
+                (["|-+ .."], os.path.abspath(os.path.join(self._root, "..")))
+            )
 
         tree_dirs = []
         tree_files = []
@@ -609,9 +760,16 @@ class CustomFileBrowser(CustomMultiColumnListBox):
                     name = "|-- {} -> {}".format(my_file, real_path)
 
             # Normalize names for MacOS and then add to the list.
-            tree.append(([unicodedata.normalize("NFC", name),
-                          readable_mem(details.st_size),
-                          readable_timestamp(details.st_mtime)], full_path))
+            tree.append(
+                (
+                    [
+                        unicodedata.normalize("NFC", name),
+                        readable_mem(details.st_size),
+                        readable_timestamp(details.st_mtime),
+                    ],
+                    full_path,
+                )
+            )
 
         tree_view.extend(sorted(tree_dirs))
         tree_view.extend(sorted(tree_files))

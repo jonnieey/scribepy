@@ -21,6 +21,7 @@ from scribepy.tui.progressbar import ProgressBar
 
 from scribepy import custom_logger
 
+
 def get_parser():
     """
     Create custom parser
@@ -29,31 +30,72 @@ def get_parser():
     """
     usage = "scribepy [OPTIONS] [COMMAND] [COMMAND_OPTIONS]"
     description = "Command line audio player for transcription"
-    parser = argparse.ArgumentParser(prog="scribepy", usage=usage, description=description, add_help=False,)
+    parser = argparse.ArgumentParser(
+        prog="scribepy",
+        usage=usage,
+        description=description,
+        add_help=False,
+    )
 
     main_help = "Show this help message and exit."
     subcommand_help = "Show this help message and exit."
 
     global_options = parser.add_argument_group(title="Global options")
     global_options.add_argument("-h", "--help", action="help", help=main_help)
-    global_options.add_argument("-L", "--log-level", type=str.upper, help="Log level to use", choices=("TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"), )
+    global_options.add_argument(
+        "-L",
+        "--log-level",
+        type=str.upper,
+        help="Log level to use",
+        choices=(
+            "TRACE",
+            "DEBUG",
+            "INFO",
+            "SUCCESS",
+            "WARNING",
+            "ERROR",
+            "CRITICAL",
+        ),
+    )
 
-    global_options.add_argument("-P", "--log-path", metavar="", help="Log file to use",)
-    subparsers = parser.add_subparsers(dest="subcommand", metavar="", title="Commands", prog="scribepy")
+    global_options.add_argument(
+        "-P",
+        "--log-path",
+        metavar="",
+        help="Log file to use",
+    )
+    subparsers = parser.add_subparsers(
+        dest="subcommand", metavar="", title="Commands", prog="scribepy"
+    )
 
     def subparser(command, text, **kwargs):
-        sub = subparsers.add_parser(command, help=text, description=text, add_help=False, **kwargs)
+        sub = subparsers.add_parser(
+            command, help=text, description=text, add_help=False, **kwargs
+        )
         sub.add_argument("-h", "--help", action="help", help=subcommand_help)
         return sub
 
     play_parser = subparser("play", "Play media file from terminal")
-    tui_parser = subparser("tui", "Launch interactive text user interface",)
+    tui_parser = subparser(
+        "tui",
+        "Launch interactive text user interface",
+    )
 
     play_parser.add_argument("file", help="File to play")
 
     return parser
 
-def progressBar(player, prefix = 'Progress: ', suffix = 'Complete', decimals = 0, length = 100, fill = '█', printEnd = "\r", autosize=False):
+
+def progressBar(
+    player,
+    prefix="Progress: ",
+    suffix="Complete",
+    decimals=0,
+    length=100,
+    fill="█",
+    printEnd="\r",
+    autosize=False,
+):
     """
     Command line interface progress bar.
 
@@ -73,8 +115,10 @@ def progressBar(player, prefix = 'Progress: ', suffix = 'Complete', decimals = 0
     position = player.position
     total = player.length
     # Progress Bar Printing Function
-    def printProgressBar (position, length=length):
-        percent = ("{0:." + str(decimals) + "f}").format(100 * (position / total))
+    def printProgressBar(position, length=length):
+        percent = ("{0:." + str(decimals) + "f}").format(
+            100 * (position / total)
+        )
         styling = f"{prefix} |{fill}| {percent}% {suffix}"
 
         if autosize:
@@ -82,9 +126,9 @@ def progressBar(player, prefix = 'Progress: ', suffix = 'Complete', decimals = 0
             length = cols - len(styling)
 
         filledLength = int(length * position // total)
-        bar = fill * filledLength + '-' * (length - filledLength)
+        bar = fill * filledLength + "-" * (length - filledLength)
         # print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
-        print(f"\r{styling.replace(fill, bar)}", end ='\r')
+        print(f"\r{styling.replace(fill, bar)}", end="\r")
         print()
         timer = f"{player.position_time}/{player.length_time}"
         timer_pos = len(timer) + len(bar)
@@ -95,6 +139,7 @@ def progressBar(player, prefix = 'Progress: ', suffix = 'Complete', decimals = 0
         printProgressBar(position)
     # Print New Line on Complete
     print()
+
 
 def play_file(file):
     """
@@ -120,11 +165,13 @@ def play_file(file):
     connector.set_player(player)
     connector.player_play(file)
 
-    while connector.player.position <= connector.player.length:
+    while True:
         try:
             subprocess.call("clear")
             try:
-                pyfiglet.print_figlet("SCRIBEPY", 'cyberlarge', justify="center")
+                pyfiglet.print_figlet(
+                    "SCRIBEPY", "cyberlarge", justify="center"
+                )
             except Exception as error:
                 logger.exception(error)
                 print("                                         SCRIBEPY")
@@ -138,6 +185,7 @@ def play_file(file):
             sleep(0.1)
         except KeyboardInterrupt as error:
             sys.exit("\nExiting scribepy!!!")
+
 
 def init(screen, old_scene):
     """
@@ -166,7 +214,8 @@ def init(screen, old_scene):
     scenes.append(Scene([mainwindow], -1, name="Main Window"))
     scenes.append(Scene([browser], -1, name="Scribepy File Browser"))
     scenes.append(Scene([progressbar], -1, clear=False, name="Progress Bar"))
-    screen.play(scenes, start_scene = old_scene)
+    screen.play(scenes, start_scene=old_scene)
+
 
 def launch_tui(**kwargs):
     last_scene = None
@@ -176,6 +225,7 @@ def launch_tui(**kwargs):
             sys.exit(0)
         except ResizeScreenError as e:
             last_scene = e.scene
+
 
 def main(args=None):
     commands = {
@@ -207,6 +257,7 @@ def main(args=None):
         logger.exception(error)
         print(error)
         sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
