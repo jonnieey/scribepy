@@ -20,7 +20,7 @@ install [PDM](https://github.com/pdm-project/pdm).
 
 `git clone https://www.github.com/jonnieey/scribepy`
 
-`pdm run install`
+`pdm install`
 
 ## Run
 
