@@ -152,8 +152,6 @@ class Player:
         Returns:
             True if successful else False.
         """
-        self.isPlaying = 1
-        self.isPaused = 0
         logger.debug("Play stream")
         try:
             return BASS_ChannelPlay(self.stream, restart)
@@ -277,6 +275,14 @@ class Player:
         minutes = int(self.remaining // 60)
 
         return f"{minutes:02}:{seconds:02}"
+
+    def isPaused(self):
+        status = BASS_ChannelIsActive(self.handle)
+        return status == BASS_ACTIVE_PAUSED
+
+    def isPlaying(self):
+        status = BASS_ChannelIsActive(self.handle)
+        return status == BASS_ACTIVE_PLAYING
 
     def pause_play_toggle(self):
         """

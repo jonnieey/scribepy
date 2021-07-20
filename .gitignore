@@ -6,3 +6,7 @@ pdm.lock
 .venv
 *.egg-info/
 tags
+TODO
+build/
+dist/
+
