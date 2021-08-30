@@ -7,7 +7,6 @@ from pynput import keyboard
 
 from scribepy import custom_logger
 
-from scribepy.top import launch_tui as tui
 from scribepy.cli import play_file as cli
 
 def get_parser():
@@ -52,34 +51,11 @@ def get_parser():
         metavar="",
         help="Log file to use",
     )
-    subparsers = parser.add_subparsers(
-        dest="subcommand", metavar="", title="Commands", prog="scribepy"
-    )
-
-    def subparser(command, text, **kwargs):
-        sub = subparsers.add_parser(
-            command, help=text, description=text, add_help=False, **kwargs
-        )
-        sub.add_argument("-h", "--help", action="help", help=subcommand_help)
-        return sub
-
-    play_parser = subparser("play", "Play media file from terminal")
-    tui_parser = subparser(
-        "tui",
-        "Launch interactive text user interface",
-    )
-
-    play_parser.add_argument("file", help="File to play")
+    global_options.add_argument("file", help="File to play")
 
     return parser
 
 def main(args=None):
-    commands = {
-        None: tui,
-        "tui": tui,
-        "play": cli,
-    }
-
     parser = get_parser()
     opts = parser.parse_args(args=args)
     kwargs = opts.__dict__
@@ -95,10 +71,8 @@ def main(args=None):
     elif log_level:
         custom_logger(sink=sys.stderr, level="WARNING")
 
-    subcommand = kwargs.pop("subcommand")
-
     try:
-        return commands[subcommand](**kwargs)
+        return cli(**kwargs)
     except Exception as error:
         logger.exception(error)
         print(error)

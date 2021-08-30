@@ -1,6 +1,9 @@
 from scribepy.player import Player
-import pyfiglet
 from pathlib import Path
+try:
+    import pyfiglet
+except ImportError:
+    pass
 import shutil
 from time import sleep
 from scribepy.connector import Connector
