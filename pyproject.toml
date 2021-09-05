@@ -6,10 +6,11 @@ authors = [
     {name = "Jonnieey", email = "johnjahi55@gmail.com"},
 ]
 dependencies = [
-    "asciimatics~=1.13",
     "pynput~=1.7",
     "python-magic~=0.4",
     "black~=21.5b2",
+    "loguru~=0.5",
+    "pyfiglet~=0.8",
 ]
 requires-python = ">=3.9"
 dynamic = ["classifiers"]
