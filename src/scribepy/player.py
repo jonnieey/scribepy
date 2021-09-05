@@ -24,7 +24,6 @@ BASS_FX_TempoCreate = func_type(HSTREAM, ctypes.c_ulong, ctypes.c_ulong)(
     ("BASS_FX_TempoCreate", fx_module)
 )
 
-
 def get_module_to_use(ext):
     """
     Get module to use according to file extension.
@@ -46,7 +45,6 @@ def get_module_to_use(ext):
         "application/octet-stream": BASS_TTA_StreamCreateFile,
         "audio/vnd.dolby.dd-raw": BASS_AC3_StreamCreateFile,
     }[ext]
-
 
 class Player:
     """
@@ -356,6 +354,10 @@ class Player:
             None.
 
         """
+        if (s < 0 and abs(s) > self.position):
+            self.seek(s/2)
+        elif (self.remaining > 0 and s > self.remaining):
+            self.seek(s/2)
         self.move_to_position_seconds(self.position + s)
 
     def change_tempo(self, s):

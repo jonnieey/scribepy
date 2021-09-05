@@ -1,6 +1,5 @@
 from pynput import keyboard
 
-
 class Connector:
     """
     A class to interact with the pynput module.
